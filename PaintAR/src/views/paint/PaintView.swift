@@ -115,6 +115,7 @@ struct PaintView: View {
                 }
                 NavigationLink {
                    PaintAR(canvas: canvasView)
+                    
                 } label: {
                     Image(systemName: "arkit")
                 }

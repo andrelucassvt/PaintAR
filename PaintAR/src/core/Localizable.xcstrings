@@ -89,6 +89,23 @@
         }
       }
     },
+    "drawingAdd" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Drawing added"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desenho adicionado"
+          }
+        }
+      }
+    },
     "edit" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -105,6 +122,9 @@
           }
         }
       }
+    },
+    "Error" : {
+
     },
     "Error: %@" : {
 
@@ -177,7 +197,27 @@
         }
       }
     },
+    "invalidJson" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Invalid Json"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Json inválido"
+          }
+        }
+      }
+    },
     "Key" : {
+      "extractionState" : "manual"
+    },
+    "nameApp" : {
       "extractionState" : "manual"
     },
     "nameDrawing" : {
@@ -197,10 +237,27 @@
         }
       }
     },
-    "Paint" : {
+    "noDrawing" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No drawings yet"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sem desenhos ainda"
+          }
+        }
+      }
+    },
+    "OK" : {
 
     },
-    "PaintAR" : {
+    "Paint" : {
 
     },
     "rename" : {
@@ -253,6 +310,29 @@
           }
         }
       }
+    },
+    "sucess" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Sucess"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sucesso"
+          }
+        }
+      }
+    },
+    "TraceAR" : {
+
+    },
+    "Try Again" : {
+
     },
     "update" : {
       "extractionState" : "manual",

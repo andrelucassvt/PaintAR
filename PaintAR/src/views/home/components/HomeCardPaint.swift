@@ -94,8 +94,8 @@ struct HomeCardPaint: View {
                                     } label: {
                                         Text(LocalizedStringKey("rename"))
                                     }
-                                    Button(role:.destructive, action: {
-                                        showAlertDelete.toggle()
+                                    Button(role: .destructive, action: {
+                                        showAlertDelete = true
                                     }) {
                                         Text(LocalizedStringKey("delete"))
                                     }
@@ -109,6 +109,7 @@ struct HomeCardPaint: View {
                                                 .foregroundColor(.white)
                                         }
                                 }
+              
                                 .navigationDestination(isPresented: $isEditing){
                                      PaintView(
                                         paintEntity: paintEntity
@@ -117,15 +118,11 @@ struct HomeCardPaint: View {
                                          onRefresh()
                                      }
                                 }
-                                .alert(isPresented: $showAlertDelete) {
-                                    Alert(
-                                        title: Text(LocalizedStringKey("deleteDrawing")),
-                                        message: Text(LocalizedStringKey("yourSure")),
-                                        primaryButton: .destructive(Text(LocalizedStringKey("delete"))) {
-                                            onDelete()
-                                        },
-                                        secondaryButton: .cancel()
-                                    )
+                                .alert(LocalizedStringKey("deleteDrawing"), isPresented: $showAlertDelete) {
+                                    Button(LocalizedStringKey("delete"), role: .destructive) {
+                                        onDelete()
+                                    }
+                                    Button(LocalizedStringKey("cancel"), role: .cancel) { }
                                 }
                                 .alert(LocalizedStringKey("rename") ,isPresented: $showRename){
                                     VStack{
@@ -174,7 +171,6 @@ struct HomeCardPaint: View {
                 urlShareInit()
             }
             .padding(.top)
- 
         }
         
     }
