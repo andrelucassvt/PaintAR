@@ -105,63 +105,84 @@ struct PaintView: View {
         DrawingView(toolPickerShows: $toolPickerShows, canvasView: canvasView, toolPicker: toolPicker)
             .navigationTitle(Text("Paint"))
             .toolbar{
-                Button {
-                    toolPickerShows.toggle()
-                } label: {
-                    Image(systemName: "paintpalette")
+                ToolbarItem(placement: .navigationBarLeading) {
+                    HStack{
+                        Button {
+                            if canvasView.undoManager?.canUndo ?? false {
+                                canvasView.undoManager?.undo()
+                            }
+                        } label: {
+                            Image(systemName: "arrow.uturn.backward.circle")
+                        }
+                        Button {
+                            if canvasView.undoManager?.canRedo ?? false {
+                                canvasView.undoManager?.redo()
+                            }
+                        } label: {
+                            Image(systemName: "arrow.uturn.forward.circle")
+                        }                    }
                 }
-                Button("", systemImage: "eraser") {
-                    canvasView.drawing.strokes.removeAll()
-                }
-                NavigationLink {
-                   PaintAR(canvas: canvasView)
-                    
-                } label: {
-                    Image(systemName: "arkit")
-                }
-                
-                Button {
-                    if paintEntity != nil {
-                        coreDataController.updatePaint(
-                            paint: paintEntity!,
-                            id: paintEntity!.id!,
-                            name: paintEntity!.name!,
-                            date: Date(),
-                            drawing: canvasView.drawing.dataRepresentation()
-                        )
-                        dismiss()
-                    } else {
-                        showAlertSave.toggle()
-                    }
-                } label: {
-                    Text(paintEntity != nil ? LocalizedStringKey("update")  :  LocalizedStringKey("save"))
-                }
-                .alert(LocalizedStringKey("nameDrawing"), isPresented: $showAlertSave) {
-                    VStack{
-                        TextField(LocalizedStringKey("nameDrawing"), text: $name)
+                ToolbarItem {
+                    HStack(spacing: 10) {
+                        Button {
+                            toolPickerShows.toggle()
+                        } label: {
+                            Image(systemName: "paintpalette")
+                        }
+                        Button("", systemImage: "eraser") {
+                            canvasView.drawing.strokes.removeAll()
+                        }
+                        NavigationLink {
+                          PaintAR(canvas: canvasView)
+                            
+                        } label: {
+                            Image(systemName: "arkit")
+                        }
                         
-                        HStack{
-                            Button(LocalizedStringKey("cancel"), action: {
-                                self.showAlertSave.toggle()
-                                name = ""
-                            })
-                            Button(LocalizedStringKey("save"), action: {
-                                coreDataController.savePaint(
-                                    name: name,
+                        Button {
+                            if paintEntity != nil {
+                                coreDataController.updatePaint(
+                                    paint: paintEntity!,
+                                    id: paintEntity!.id!,
+                                    name: paintEntity!.name!,
                                     date: Date(),
                                     drawing: canvasView.drawing.dataRepresentation()
                                 )
-                                showAlertSave.toggle()
-                                canvasView.drawing.strokes.removeAll()
                                 dismiss()
-                               
-                            })
+                            } else {
+                                showAlertSave.toggle()
+                            }
+                        } label: {
+                            Text(paintEntity != nil ? LocalizedStringKey("update")  :  LocalizedStringKey("save"))
                         }
+                        .alert(LocalizedStringKey("nameDrawing"), isPresented: $showAlertSave) {
+                            VStack{
+                                TextField(LocalizedStringKey("nameDrawing"), text: $name)
+                                
+                                HStack{
+                                    Button(LocalizedStringKey("cancel"), action: {
+                                        self.showAlertSave.toggle()
+                                        name = ""
+                                    })
+                                    Button(LocalizedStringKey("save"), action: {
+                                        coreDataController.savePaint(
+                                            name: name,
+                                            date: Date(),
+                                            drawing: canvasView.drawing.dataRepresentation()
+                                        )
+                                        showAlertSave.toggle()
+                                        canvasView.drawing.strokes.removeAll()
+                                        dismiss()
+                                       
+                                    })
+                                }
 
+                            }
+             
+                        } message: {
+                            Text(LocalizedStringKey("saveDrawing"))
+                        }
                     }
-     
-                } message: {
-                    Text(LocalizedStringKey("saveDrawing"))
                 }
 
             }

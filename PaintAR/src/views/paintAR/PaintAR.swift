@@ -24,6 +24,8 @@ struct ARViewContainer: UIViewControllerRepresentable {
     func updateUIViewController(_ uiViewController: ViewController, context: Context) {}
 }
 
+
+
 class ViewController: UIViewController, ARSCNViewDelegate {
     var sceneView: ARSCNView!
     var selectedNode: SCNNode?

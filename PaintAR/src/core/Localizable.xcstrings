@@ -10,13 +10,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Add"
+            "value" : "Add drawing"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Adicionar"
+            "value" : "Adicionar desenho"
           }
         }
       }
