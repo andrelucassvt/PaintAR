@@ -4,6 +4,8 @@ import Foundation
 actor InMemoryPaintRepository: PaintRepository {
     private var paints: [Paint]
     var failNextCall: Error?
+    private(set) var createCallCount = 0
+    private(set) var updateDrawingCallCount = 0
     private(set) var deleteCallCount = 0
     private(set) var renameCallCount = 0
 
@@ -21,6 +23,7 @@ actor InMemoryPaintRepository: PaintRepository {
     }
 
     func create(name: String, drawingData: Data) throws -> Paint {
+        createCallCount += 1
         try consumeFailure()
         let paint = Paint(id: UUID(), name: name, date: Date(), drawingData: drawingData)
         paints.append(paint)
@@ -28,6 +31,7 @@ actor InMemoryPaintRepository: PaintRepository {
     }
 
     func updateDrawing(id: UUID, drawingData: Data) throws {
+        updateDrawingCallCount += 1
         try consumeFailure()
         guard let index = paints.firstIndex(where: { $0.id == id }) else {
             throw PaintError.notFound

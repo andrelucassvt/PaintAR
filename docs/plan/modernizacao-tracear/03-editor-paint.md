@@ -25,36 +25,38 @@ O `PaintView` atual tem três defeitos de fluxo. Os botões de undo/redo ficam s
 ### Fase 1 — Testes do PaintViewModel (contrato antes da implementação)
 
 > Os testes vão falhar inicialmente — isso é intencional.
+>
+> **Drift registrado (2026-09-09):** como `PaintViewModel` ainda não existia, os testes da Fase 1 produziram o erro de compilação esperado (`cannot find 'PaintViewModel' in scope`) em vez de falharem por asserção. Após a implementação da Fase 2, a mesma suíte passou integralmente; o contrato continua coberto sem alterar o Design de Origem.
 
-- [ ] Criar `PaintARTests/PaintViewModelTests.swift` reusando `InMemoryPaintRepository` de `PaintARTests/Support/`
-- [ ] Testar o modo novo: `save(drawingData:)` com nome válido chama `create` uma vez e devolve o `Paint`; nome vazio ou só com espaços é rejeitado sem chamar o repositório; nome é aparado antes de gravar
-- [ ] Testar o modo edição: `save(drawingData:)` chama `updateDrawing(id:drawingData:)` e nunca `create`; nome existente é preservado, sem pedir nome de novo
-- [ ] Testar alterações não salvas: `hasUnsavedChanges` é falso na abertura, verdadeiro depois de `markDirty()`, e volta a falso após salvar com sucesso; erro do repositório mantém `hasUnsavedChanges` verdadeiro e publica mensagem de erro
-- [ ] Verificação: `xcodebuild -workspace PaintAR.xcworkspace -scheme PaintAR -destination 'platform=iOS Simulator,name=iPhone 17 Pro' -only-testing:PaintARTests test` compila e falha nas asserções novas
+- [x] Criar `PaintARTests/PaintViewModelTests.swift` reusando `InMemoryPaintRepository` de `PaintARTests/Support/`
+- [x] Testar o modo novo: `save(drawingData:)` com nome válido chama `create` uma vez e devolve o `Paint`; nome vazio ou só com espaços é rejeitado sem chamar o repositório; nome é aparado antes de gravar
+- [x] Testar o modo edição: `save(drawingData:)` chama `updateDrawing(id:drawingData:)` e nunca `create`; nome existente é preservado, sem pedir nome de novo
+- [x] Testar alterações não salvas: `hasUnsavedChanges` é falso na abertura, verdadeiro depois de `markDirty()`, e volta a falso após salvar com sucesso; erro do repositório mantém `hasUnsavedChanges` verdadeiro e publica mensagem de erro
+- [x] Verificação: `xcodebuild -workspace PaintAR.xcworkspace -scheme PaintAR -destination 'platform=iOS Simulator,name=iPhone 17 Pro' -only-testing:PaintARTests test` passou integralmente após a Fase 2 em 2026-09-09
 
 ### Fase 2 — PaintViewModel
 
-- [ ] Criar `PaintAR/src/views/paint/viewModel/PaintViewModel.swift` como `@MainActor @Observable final class PaintViewModel` com `enum Mode { case new, editing(Paint) }`, `private(set) var isSaving`, `private(set) var hasUnsavedChanges`, `var errorMessage: String?` e `init(mode: Mode, repository: PaintRepository)`
-- [ ] Implementar `save(drawingData:name:) async -> Paint?` com a bifurcação `create`/`updateDrawing`, `markDirty()` e `func trimmedNameIsValid(_:) -> Bool`
-- [ ] Verificação: a suíte `-only-testing:PaintARTests` passa inteira
+- [x] Criar `PaintAR/src/views/paint/viewModel/PaintViewModel.swift` como `@MainActor @Observable final class PaintViewModel` com `enum Mode { case new, editing(Paint) }`, `private(set) var isSaving`, `private(set) var hasUnsavedChanges`, `var errorMessage: String?` e `init(mode: Mode, repository: PaintRepository)`
+- [x] Implementar `save(drawingData:name:) async -> Paint?` com a bifurcação `create`/`updateDrawing`, `markDirty()` e `func trimmedNameIsValid(_:) -> Bool`
+- [x] Verificação: a suíte `-only-testing:PaintARTests` passa inteira — concluída em 2026-09-09
 
 ### Fase 3 — Canvas com estado observável
 
-- [ ] Criar `PaintAR/src/views/paint/components/DrawingCanvasView.swift`: `UIViewRepresentable` sobre `PKCanvasView` com `drawingPolicy = .anyInput`, fundo `Theme.paper`, `minimumZoomScale`/`maximumZoomScale` preservados, e `PKToolPicker` controlado por binding
-- [ ] No `Coordinator: PKCanvasViewDelegate`, implementar `canvasViewDrawingDidChange` alimentando um `@Observable final class CanvasState` com `canUndo`, `canRedo` e `isEmpty` (lendo `canvasView.undoManager`), e chamando o `onChange` que marca o ViewModel como sujo
-- [ ] Carregar o desenho existente em `makeUIView` via `PKDrawing(data: paint.drawingData)`, sem `onAppear` — some o `canvasInit()` chamado em cada aparição da tela
-- [ ] Verificação: build limpo e `grep -n "canvasViewDrawingDidChange" PaintAR/src/views/paint/components/DrawingCanvasView.swift` retorna a implementação do delegate
+- [x] Criar `PaintAR/src/views/paint/components/DrawingCanvasView.swift`: `UIViewRepresentable` sobre `PKCanvasView` com `drawingPolicy = .anyInput`, fundo `Theme.paper`, `minimumZoomScale`/`maximumZoomScale` preservados, e `PKToolPicker` controlado por binding
+- [x] No `Coordinator: PKCanvasViewDelegate`, implementar `canvasViewDrawingDidChange` alimentando um `@Observable final class CanvasState` com `canUndo`, `canRedo` e `isEmpty` (lendo `canvasView.undoManager`), e chamando o `onChange` que marca o ViewModel como sujo
+- [x] Carregar o desenho existente em `makeUIView` via `PKDrawing(data: paint.drawingData)`, sem `onAppear` — some o `canvasInit()` chamado em cada aparição da tela
+- [x] Verificação: build limpo e `grep -n "canvasViewDrawingDidChange" PaintAR/src/views/paint/components/DrawingCanvasView.swift` retorna a implementação do delegate — build concluído em 2026-09-09
 
 ### Fase 4 — Tela do editor
 
-- [ ] Criar `PaintAR/src/views/paint/components/PaintToolbar.swift`: barra inferior em `.safeAreaInset(edge: .bottom)` com undo, redo (ambos `.disabled` pelo `CanvasState`), alternar `PKToolPicker`, **Limpar**, **Ver em RA** e **Salvar**, usando `Theme` e ícones SF Symbols com `.symbolEffect` no toque
-- [ ] Criar `PaintAR/src/views/paint/components/NamePaintSheet.swift`: `TextField` com `@FocusState` focado na abertura, `.presentationDetents([.height(220)])`, botão de salvar desabilitado enquanto o nome aparado estiver vazio e `submitLabel(.done)`
-- [ ] Reescrever `PaintAR/src/views/paint/PaintView.swift`: fundo `Theme.backgroundGradient`, canvas como folha de papel com sombra e `Theme.Radius.card`, `.toolbarBackground`/`.toolbarColorScheme` coerentes com o fundo escuro, e `PaintViewModel` como `@State`
-- [ ] Trocar o botão de borracha por **Limpar** com `.confirmationDialog` antes de esvaziar os traços, deixando a borracha real para o `PKToolPicker`
-- [ ] Adicionar a guarda de saída: `.interactiveDismissDisabled(viewModel.hasUnsavedChanges)` e botão de voltar próprio que abre `.confirmationDialog` com Descartar / Continuar editando quando houver alterações pendentes
-- [ ] Acrescentar em `PaintAR/src/core/Localizable.xcstrings` as chaves do editor (limpar, confirmar limpeza, descartar alterações, continuar editando, nome inválido, erro ao salvar) em pt-BR e en
-- [ ] Verificação: build limpo; `grep -n "undoManager" PaintAR/src/views/paint/PaintView.swift` não retorna nada — o acesso ao undo fica encapsulado no componente; `grep -rn "strokes.removeAll" PaintAR/src/views/paint/` só aparece dentro do fluxo de confirmação; `python3 -c "import json;d=json.load(open('PaintAR/src/core/Localizable.xcstrings'));[print(k) for k,v in d['strings'].items() if set(v.get('localizations',{})) != {'pt-BR','en'}]"` não lista nenhuma chave do editor
-- [ ] Checkpoint: commit das mudanças da parte + resumo curto do que ficou pronto, seguindo direto para a parte 4
+- [x] Criar `PaintAR/src/views/paint/components/PaintToolbar.swift`: barra inferior em `.safeAreaInset(edge: .bottom)` com undo, redo (ambos `.disabled` pelo `CanvasState`), alternar `PKToolPicker`, **Limpar**, **Ver em RA** e **Salvar**, usando `Theme` e ícones SF Symbols com `.symbolEffect` no toque
+- [x] Criar `PaintAR/src/views/paint/components/NamePaintSheet.swift`: `TextField` com `@FocusState` focado na abertura, `.presentationDetents([.height(220)])`, botão de salvar desabilitado enquanto o nome aparado estiver vazio e `submitLabel(.done)`
+- [x] Reescrever `PaintAR/src/views/paint/PaintView.swift`: fundo `Theme.backgroundGradient`, canvas como folha de papel com sombra e `Theme.Radius.card`, `.toolbarBackground`/`.toolbarColorScheme` coerentes com o fundo escuro, e `PaintViewModel` como `@State`
+- [x] Trocar o botão de borracha por **Limpar** com `.confirmationDialog` antes de esvaziar os traços, deixando a borracha real para o `PKToolPicker`
+- [x] Adicionar a guarda de saída: `.interactiveDismissDisabled(viewModel.hasUnsavedChanges)` e botão de voltar próprio que abre `.confirmationDialog` com Descartar / Continuar editando quando houver alterações pendentes
+- [x] Acrescentar em `PaintAR/src/core/Localizable.xcstrings` as chaves do editor (limpar, confirmar limpeza, descartar alterações, continuar editando, nome inválido, erro ao salvar) em pt-BR e en
+- [x] Verificação: build limpo; `grep -n "undoManager" PaintAR/src/views/paint/PaintView.swift` não retorna nada — o acesso ao undo fica encapsulado no componente; `grep -rn "strokes.removeAll" PaintAR/src/views/paint/` só aparece dentro do fluxo de confirmação; `python3 -c "import json;d=json.load(open('PaintAR/src/core/Localizable.xcstrings'));[print(k) for k,v in d['strings'].items() if set(v.get('localizations',{})) != {'pt-BR','en'}]"` não lista nenhuma chave do editor — concluída em 2026-09-09
+- [x] Checkpoint: commit das mudanças da parte + resumo curto do que ficou pronto, seguindo direto para a parte 4
 
 ## Critérios de Sucesso
 

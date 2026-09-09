@@ -1,180 +1,164 @@
-import PencilKit
 import SwiftUI
 
-struct DrawingView: UIViewRepresentable {
-    @Binding var toolPickerShows: Bool
-    let canvasView: PKCanvasView
-    let toolPicker: PKToolPicker
-
-    func makeUIView(context: Context) -> PKCanvasView {
-        canvasView.drawingPolicy = .anyInput
-        canvasView.backgroundColor = .white
-        canvasView.isOpaque = true
-        canvasView.minimumZoomScale = 1
-        canvasView.maximumZoomScale = 3
-
-        toolPicker.setVisible(toolPickerShows, forFirstResponder: canvasView)
-        toolPicker.addObserver(canvasView)
-
-        if toolPickerShows {
-            canvasView.becomeFirstResponder()
-        }
-
-        return canvasView
-    }
-
-    func updateUIView(_ canvasView: PKCanvasView, context: Context) {
-        toolPicker.setVisible(toolPickerShows, forFirstResponder: canvasView)
-
-        if toolPickerShows {
-            canvasView.becomeFirstResponder()
-        } else {
-            canvasView.resignFirstResponder()
-        }
-    }
-}
-
+@MainActor
 struct PaintView: View {
     let paint: Paint?
-    let repository: any PaintRepository
 
-    @State private var canvasView = PKCanvasView()
-    @State private var toolPicker = PKToolPicker()
-    @State private var toolPickerShows = true
-    @State private var showAlertSave = false
-    @State private var name = ""
-    @State private var saveError: String?
     @Environment(\.dismiss) private var dismiss
+    @State private var viewModel: PaintViewModel
+    @State private var canvasState = CanvasState()
+    @State private var toolPickerShows = true
+    @State private var name = ""
+    @State private var showNameSheet = false
+    @State private var showClearConfirmation = false
+    @State private var showDiscardConfirmation = false
+    @State private var showAR = false
 
     init(paint: Paint? = nil, repository: any PaintRepository) {
         self.paint = paint
-        self.repository = repository
+
+        let mode: PaintViewModel.Mode = if let paint {
+            .editing(paint)
+        } else {
+            .new
+        }
+        _viewModel = State(initialValue: PaintViewModel(mode: mode, repository: repository))
     }
 
     var body: some View {
-        DrawingView(
-            toolPickerShows: $toolPickerShows,
-            canvasView: canvasView,
-            toolPicker: toolPicker
-        )
-        .navigationTitle(Text("Paint"))
+        @Bindable var viewModel = viewModel
+
+        ZStack {
+            Theme.backgroundGradient
+                .ignoresSafeArea()
+
+            DrawingCanvasView(
+                paint: paint,
+                canvasState: canvasState,
+                toolPickerShows: $toolPickerShows,
+                onChange: viewModel.markDirty
+            )
+            .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous))
+            .shadow(
+                color: .black.opacity(Theme.CardShadow.paper.opacity),
+                radius: Theme.CardShadow.paper.radius,
+                x: Theme.CardShadow.paper.offset.width,
+                y: Theme.CardShadow.paper.offset.height
+            )
+            .padding(20)
+        }
+        .navigationTitle(Text(LocalizedStringKey("draw")))
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(true)
+        .toolbarBackground(Theme.graphite, for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
+        .toolbarColorScheme(.dark, for: .navigationBar)
         .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                HStack {
-                    Button {
-                        if canvasView.undoManager?.canUndo ?? false {
-                            canvasView.undoManager?.undo()
-                        }
-                    } label: {
-                        Image(systemName: "arrow.uturn.backward.circle")
-                    }
-                    Button {
-                        if canvasView.undoManager?.canRedo ?? false {
-                            canvasView.undoManager?.redo()
-                        }
-                    } label: {
-                        Image(systemName: "arrow.uturn.forward.circle")
-                    }
+            ToolbarItem(placement: .topBarLeading) {
+                Button {
+                    requestDismissal()
+                } label: {
+                    Label(LocalizedStringKey("back"), systemImage: "chevron.backward")
                 }
+                .tint(Theme.textPrimary)
             }
-            ToolbarItem {
-                HStack(spacing: 10) {
-                    Button {
-                        toolPickerShows.toggle()
-                    } label: {
-                        Image(systemName: "paintpalette")
-                    }
-                    Button("", systemImage: "eraser") {
-                        canvasView.drawing.strokes.removeAll()
-                    }
-                    NavigationLink {
-                        PaintAR(canvas: canvasView)
-                    } label: {
-                        Image(systemName: "arkit")
-                    }
-                    Button {
-                        if paint == nil {
-                            showAlertSave = true
-                        } else {
-                            updatePaint()
-                        }
-                    } label: {
-                        Text(paint == nil ? LocalizedStringKey("save") : LocalizedStringKey("update"))
-                    }
-                    .alert(LocalizedStringKey("nameDrawing"), isPresented: $showAlertSave) {
-                        TextField(LocalizedStringKey("nameDrawing"), text: $name)
-                        Button(LocalizedStringKey("cancel")) {
-                            name = ""
-                        }
-                        Button(LocalizedStringKey("save")) {
-                            createPaint()
-                        }
-                    } message: {
-                        Text(LocalizedStringKey("saveDrawing"))
-                    }
-                }
+        }
+        .safeAreaInset(edge: .bottom) {
+            PaintToolbar(
+                canvasState: canvasState,
+                toolPickerShows: $toolPickerShows,
+                isSaving: viewModel.isSaving,
+                onClear: {
+                    showClearConfirmation = true
+                },
+                onViewAR: {
+                    showAR = true
+                },
+                onSave: save
+            )
+        }
+        .sheet(isPresented: $showNameSheet) {
+            NamePaintSheet(
+                name: $name,
+                isSaving: viewModel.isSaving,
+                onSave: saveNewPaint(named:)
+            )
+        }
+        .confirmationDialog(
+            LocalizedStringKey("clearDrawing"),
+            isPresented: $showClearConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button(LocalizedStringKey("clear"), role: .destructive) {
+                canvasState.clear()
+                viewModel.markDirty()
             }
+            Button(LocalizedStringKey("cancel"), role: .cancel) {}
+        } message: {
+            Text(LocalizedStringKey("clearDrawingMessage"))
+        }
+        .confirmationDialog(
+            LocalizedStringKey("discardChanges"),
+            isPresented: $showDiscardConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button(LocalizedStringKey("discard"), role: .destructive) {
+                dismiss()
+            }
+            Button(LocalizedStringKey("continueEditing"), role: .cancel) {}
         }
         .alert(
-            Text("Error"),
+            LocalizedStringKey("errorSaving"),
             isPresented: Binding(
-                get: { saveError != nil },
-                set: { if !$0 { saveError = nil } }
+                get: { viewModel.errorMessage != nil },
+                set: { if !$0 { viewModel.errorMessage = nil } }
             )
         ) {
-            Button("OK", role: .cancel) {}
+            Button(LocalizedStringKey("ok"), role: .cancel) {}
         } message: {
-            Text(saveError ?? "")
+            Text(LocalizedStringKey(viewModel.errorMessage ?? "errorSaving"))
         }
-        .onAppear {
-            toolPickerShows = true
-            loadCanvas()
+        .interactiveDismissDisabled(viewModel.hasUnsavedChanges)
+        .navigationDestination(isPresented: $showAR) {
+            PaintAR(canvas: canvasState.canvas)
         }
     }
 
-    private func loadCanvas() {
-        guard
-            let paint,
-            let drawing = try? PKDrawing(data: paint.drawingData)
-        else {
-            return
+    private func save() {
+        if paint == nil {
+            showNameSheet = true
+        } else {
+            saveExistingPaint()
         }
-
-        canvasView.drawing = drawing
     }
 
-    private func createPaint() {
-        let drawingData = canvasView.drawing.dataRepresentation()
-        let paintName = name.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !paintName.isEmpty else {
-            return
-        }
-
+    private func saveNewPaint(named name: String) {
         Task {
-            do {
-                _ = try await repository.create(name: paintName, drawingData: drawingData)
-                name = ""
-                showAlertSave = false
-                dismiss()
-            } catch {
-                saveError = error.localizedDescription
+            guard await viewModel.save(drawingData: canvasState.drawingData, name: name) != nil else {
+                return
             }
+
+            self.name = ""
+            showNameSheet = false
+            dismiss()
         }
     }
 
-    private func updatePaint() {
-        guard let paint else {
-            return
-        }
-
-        let drawingData = canvasView.drawing.dataRepresentation()
+    private func saveExistingPaint() {
         Task {
-            do {
-                try await repository.updateDrawing(id: paint.id, drawingData: drawingData)
-                dismiss()
-            } catch {
-                saveError = error.localizedDescription
+            guard await viewModel.save(drawingData: canvasState.drawingData, name: "") != nil else {
+                return
             }
+
+            dismiss()
+        }
+    }
+
+    private func requestDismissal() {
+        if viewModel.hasUnsavedChanges {
+            showDiscardConfirmation = true
+        } else {
+            dismiss()
         }
     }
 }
