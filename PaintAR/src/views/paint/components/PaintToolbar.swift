@@ -9,76 +9,130 @@ struct PaintToolbar: View {
     let onViewAR: () -> Void
     let onSave: () -> Void
 
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     @State private var actionID = 0
+
+    // Alvo visual compacto para caber na pílula sem estourar em telas estreitas.
+    private let buttonSize: CGFloat = 40
 
     var body: some View {
         HStack(spacing: 4) {
-            editorButton("undo", systemImage: "arrow.uturn.backward") {
+            toolbarButton("undo", systemImage: "arrow.uturn.backward", isEnabled: canvasState.canUndo) {
                 canvasState.undo()
             }
-            .disabled(!canvasState.canUndo)
 
-            editorButton("redo", systemImage: "arrow.uturn.forward") {
+            toolbarButton("redo", systemImage: "arrow.uturn.forward", isEnabled: canvasState.canRedo) {
                 canvasState.redo()
             }
-            .disabled(!canvasState.canRedo)
 
-            Divider()
-                .frame(height: 28)
-                .padding(.horizontal, 4)
+            barDivider
 
-            editorButton("tools", systemImage: "paintpalette") {
+            toolbarButton(
+                "tools",
+                systemImage: toolPickerShows ? "paintpalette.fill" : "paintpalette",
+                isEnabled: true,
+                isActive: toolPickerShows
+            ) {
                 toolPickerShows.toggle()
             }
 
-            editorButton("clear", systemImage: "trash") {
+            toolbarButton("clear", systemImage: "trash", isEnabled: !canvasState.isEmpty) {
                 onClear()
             }
-            .disabled(canvasState.isEmpty)
 
-            Spacer(minLength: 4)
+            barDivider
 
-            editorButton("viewInAR", systemImage: "arkit") {
+            toolbarButton("viewInAR", systemImage: "arkit", isEnabled: true) {
                 onViewAR()
             }
 
-            Button {
-                actionID += 1
-                onSave()
-            } label: {
-                Label(LocalizedStringKey("save"), systemImage: "checkmark")
-                    .font(.headline)
-                    .labelStyle(.iconOnly)
-                    .frame(width: 44, height: 44)
-            }
-            .buttonStyle(.borderedProminent)
-            .tint(Theme.accentInk)
-            .disabled(isSaving)
-            .accessibilityLabel(LocalizedStringKey("save"))
-            .symbolEffect(.bounce, value: actionID)
+            saveButton
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 10)
-        .foregroundStyle(Theme.textPrimary)
-        .background(.ultraThinMaterial)
+        .padding(6)
+        .background(barBackground)
     }
 
-    private func editorButton(
+    // Fundo em cápsula flutuante com fallback opaco para Reduce Transparency.
+    private var barBackground: some View {
+        Capsule(style: .continuous)
+            .fill(reduceTransparency ? AnyShapeStyle(Theme.graphiteElevated) : AnyShapeStyle(.ultraThinMaterial))
+            .overlay {
+                Capsule(style: .continuous)
+                    .stroke(Color.white.opacity(0.14), lineWidth: 1)
+            }
+            .shadow(color: .black.opacity(0.25), radius: 12, x: 0, y: 6)
+    }
+
+    private var barDivider: some View {
+        Divider()
+            .frame(height: 24)
+            .foregroundStyle(Color.white.opacity(0.2))
+            .padding(.horizontal, 2)
+    }
+
+    private var saveButton: some View {
+        Button {
+            actionID += 1
+            onSave()
+        } label: {
+            if isSaving {
+                ProgressView()
+                    .tint(.white)
+                    .frame(width: buttonSize, height: buttonSize)
+            } else {
+                Image(systemName: "checkmark")
+                    .font(.system(size: 17, weight: .bold))
+                    .symbolRenderingMode(.hierarchical)
+                    .frame(width: buttonSize, height: buttonSize)
+                    .background(Circle().fill(Theme.accentInk))
+                    .foregroundStyle(.white)
+                    .shadow(color: Theme.accentInk.opacity(0.4), radius: 8, x: 0, y: 3)
+            }
+        }
+        .buttonStyle(.plain)
+        .disabled(isSaving)
+        .opacity(isSaving ? 0.7 : 1)
+        .accessibilityLabel(LocalizedStringKey("save"))
+        .symbolEffect(.bounce, value: actionID)
+    }
+
+    private func toolbarButton(
         _ titleKey: String,
         systemImage: String,
+        isEnabled: Bool,
+        isActive: Bool = false,
         action: @escaping () -> Void
     ) -> some View {
         Button {
             actionID += 1
             action()
         } label: {
-            Label(LocalizedStringKey(titleKey), systemImage: systemImage)
-                .labelStyle(.iconOnly)
-                .frame(width: 44, height: 44)
+            Image(systemName: systemImage)
+                .font(.system(size: 16, weight: .semibold))
+                .symbolRenderingMode(.hierarchical)
+                .frame(width: buttonSize, height: buttonSize)
+                .background(
+                    Circle()
+                        .fill(buttonFill(isActive: isActive, isEnabled: isEnabled))
+                )
+                .foregroundStyle(isEnabled ? Theme.textPrimary : Theme.textSecondary)
         }
-        .buttonStyle(.bordered)
-        .tint(Theme.textPrimary)
+        .buttonStyle(.plain)
+        .disabled(!isEnabled)
+        .opacity(isEnabled ? 1 : 0.35)
         .accessibilityLabel(LocalizedStringKey(titleKey))
         .symbolEffect(.bounce, value: actionID)
+    }
+
+    private func buttonFill(isActive: Bool, isEnabled: Bool) -> Color {
+        guard isEnabled else {
+            return .clear
+        }
+
+        if isActive {
+            return Theme.accentInk.opacity(0.32)
+        }
+
+        return Color.white.opacity(0.1)
     }
 }

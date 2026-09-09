@@ -63,19 +63,28 @@ struct PaintView: View {
                 .tint(Theme.textPrimary)
             }
         }
-        .safeAreaInset(edge: .bottom) {
-            PaintToolbar(
-                canvasState: canvasState,
-                toolPickerShows: $toolPickerShows,
-                isSaving: viewModel.isSaving,
-                onClear: {
-                    showClearConfirmation = true
-                },
-                onViewAR: {
-                    showAR = true
-                },
-                onSave: save
-            )
+        // Pílula centralizada no topo para não ficar sob o PKToolPicker flutuante da base.
+        .safeAreaInset(edge: .top) {
+            HStack {
+                Spacer(minLength: 0)
+                PaintToolbar(
+                    canvasState: canvasState,
+                    toolPickerShows: $toolPickerShows,
+                    isSaving: viewModel.isSaving,
+                    onClear: {
+                        showClearConfirmation = true
+                    },
+                    onViewAR: {
+                        showAR = true
+                    },
+                    onSave: save
+                )
+                Spacer(minLength: 0)
+            }
+            .padding(.horizontal, 12)
+            .padding(.top, 8)
+            .padding(.bottom, 4)
+            .background(.clear)
         }
         .sheet(isPresented: $showNameSheet) {
             NamePaintSheet(
