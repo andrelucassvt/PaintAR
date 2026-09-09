@@ -66,15 +66,11 @@
 		};
 		2459CA512D708AE700D5F562 /* PaintARTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = PaintARTests;
 			sourceTree = "<group>";
 		};
 		2459CA5B2D708AE700D5F562 /* PaintARUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = PaintARUITests;
 			sourceTree = "<group>";
 		};

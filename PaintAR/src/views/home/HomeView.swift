@@ -40,12 +40,24 @@ struct HomeView: View {
 
                 content
             }
+            .overlay(alignment: .bottomTrailing) {
+                NewDrawingFab(repository: repository) {
+                    Task {
+                        await viewModel.load()
+                    }
+                }
+                .padding(.trailing, 20)
+                .padding(.bottom, 28)
+            }
             .navigationTitle(Text(LocalizedStringKey("TraceAR")))
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarTitleDisplayMode(.large)
             .navigationDestination(for: Paint.self) { paint in
                 paintDestination(for: paint)
             }
-            .searchable(text: $viewModel.searchText)
+            .searchable(
+                text: $viewModel.searchText,
+                prompt: Text(LocalizedStringKey("searchDrawings"))
+            )
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
@@ -56,26 +68,6 @@ struct HomeView: View {
                     }
                     .accessibilityLabel(LocalizedStringKey("import"))
                 }
-            }
-            .safeAreaInset(edge: .bottom) {
-                NavigationLink {
-                    PaintView(repository: repository)
-                        .onDisappear {
-                            Task {
-                                await viewModel.load()
-                            }
-                        }
-                } label: {
-                    Label(LocalizedStringKey("draw"), systemImage: "applepencil.and.scribble")
-                        .font(.headline)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 15)
-                }
-                .buttonStyle(.borderedProminent)
-                .tint(Theme.accentInk)
-                .padding(.horizontal, 20)
-                .padding(.top, 8)
-                .background(.ultraThinMaterial)
             }
             .sheet(isPresented: $showImportSheet) {
                 ImportSheet(
@@ -171,14 +163,14 @@ struct HomeView: View {
         ScrollView {
             VStack(spacing: 20) {
                 HStack(alignment: .firstTextBaseline) {
-                    Text(LocalizedStringKey("TraceAR"))
-                        .font(.system(.largeTitle, design: .rounded, weight: .bold))
+                    Text(LocalizedStringKey("drawings"))
+                        .font(.headline)
                         .foregroundStyle(Theme.textPrimary)
 
                     Spacer()
 
                     Text(viewModel.visiblePaints.count, format: .number)
-                        .font(.title3.monospacedDigit().weight(.semibold))
+                        .font(.subheadline.monospacedDigit().weight(.semibold))
                         .foregroundStyle(Theme.textSecondary)
                 }
 

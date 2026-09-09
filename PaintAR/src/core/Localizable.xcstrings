@@ -106,6 +106,13 @@
         "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Desenho adicionado" } }
       }
     },
+    "drawings" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Drawings" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Desenhos" } }
+      }
+    },
     "edit" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -244,6 +251,13 @@
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "The app will save your drawing" } },
         "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "O app vai salvar seu desenho" } }
+      }
+    },
+    "searchDrawings" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Search drawings" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Buscar desenhos" } }
       }
     },
     "showControls" : {
