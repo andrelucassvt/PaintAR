@@ -37,55 +37,59 @@
 
 ### Fase 1 — Target iOS 18 e container único
 
-- [ ] Em `PaintAR.xcodeproj/project.pbxproj`, trocar todo `IPHONEOS_DEPLOYMENT_TARGET = 16.0` e `= 18.2` por `= 18.0` (target do app, targets de teste e nível de projeto) e `MARKETING_VERSION` do target `PaintAR` de `1.0.5` para `2.0.0`
-- [ ] Em `Podfile`, trocar `platform :ios, '16.0'` por `platform :ios, '18.0'` e rodar `pod install`
-- [ ] Criar `PaintAR/src/data/PersistenceController.swift`: `final class PersistenceController`, `static let shared`, `init(inMemory: Bool = false)` (com `NSPersistentStoreDescription(url: /dev/null)` quando in-memory), `viewContext.automaticallyMergesChangesFromParent = true`, `viewContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy`, `func newBackgroundContext()` e, no lugar do `fatalError`, um erro logado guardado em `loadError`
-- [ ] Verificação: `xcodebuild -workspace PaintAR.xcworkspace -scheme PaintAR -destination 'generic/platform=iOS' build` compila e `grep -rn "IPHONEOS_DEPLOYMENT_TARGET" PaintAR.xcodeproj/project.pbxproj` só retorna `18.0`
+- [x] Em `PaintAR.xcodeproj/project.pbxproj`, trocar todo `IPHONEOS_DEPLOYMENT_TARGET = 16.0` e `= 18.2` por `= 18.0` (target do app, targets de teste e nível de projeto) e `MARKETING_VERSION` do target `PaintAR` de `1.0.5` para `2.0.0`
+- [x] Em `Podfile`, trocar `platform :ios, '16.0'` por `platform :ios, '18.0'` e rodar `pod install`
+- [x] Criar `PaintAR/src/data/PersistenceController.swift`: `final class PersistenceController`, `static let shared`, `init(inMemory: Bool = false)` (com `NSPersistentStoreDescription(url: /dev/null)` quando in-memory), `viewContext.automaticallyMergesChangesFromParent = true`, `viewContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy`, `func newBackgroundContext()` e, no lugar do `fatalError`, um erro logado guardado em `loadError`
+- [x] Verificação: `xcodebuild -workspace PaintAR.xcworkspace -scheme PaintAR -destination 'generic/platform=iOS' build` compila e `grep -rn "IPHONEOS_DEPLOYMENT_TARGET" PaintAR.xcodeproj/project.pbxproj` só retorna `18.0` — build concluído em 2026-09-09
 
 ### Fase 2 — Contratos (assinaturas antes dos testes)
 
 > Em Swift, um teste que referencia tipo inexistente não compila — então os tipos e o protocolo nascem aqui com corpo mínimo, e os testes da Fase 3 falham por asserção, não por erro de compilação.
+>
+> **Drift registrado (2026-09-09):** apenas a extensão de `PaintEntity` foi removida de `PaintModel.swift` nesta fase porque seu initializer migrou para `Paint.swift` e as duas declarações não podem coexistir na compilação. O DTO legado `PaintModelJson` permanece temporariamente para manter as telas atuais compiláveis até sua adaptação e a remoção completa do arquivo na Fase 4.
+>
+> **Drift registrado (2026-09-09):** a store `NSInMemoryStoreType` recebeu uma URL temporária única em vez de `/dev/null`; a URL atua apenas como identificador e elimina colisões de configuração quando os testes Swift Testing criam stores em paralelo.
 
-- [ ] Criar `PaintAR/src/domain/model/Paint.swift`: `struct Paint: Identifiable, Hashable, Sendable` com `id: UUID`, `name: String`, `date: Date`, `drawingData: Data`; `init?(entity: PaintEntity)` retornando `nil` se `id`, `name`, `date` ou `drawing` forem nulos; e o `convenience init` de `PaintEntity` migrado de `PaintModel.swift`
-- [ ] Criar `PaintAR/src/domain/model/PaintExchangeModel.swift`: `struct PaintExchangeModel: Codable` com as chaves atuais `id`/`name`/`date`/`drawing`, `static let dateFormatter` em `"yyyy-MM-dd HH:mm:ss Z"` / `en_US_POSIX` / GMT, `init(paint:)` e `func toPaint() throws -> Paint`
-- [ ] Criar `PaintAR/src/domain/model/PaintError.swift`: `enum PaintError: LocalizedError` com `invalidDate`, `invalidDrawingData`, `notFound`, `persistenceFailed(String)`
-- [ ] Criar `PaintAR/src/domain/repository/PaintRepository.swift`: `protocol PaintRepository: Sendable` com `fetchAll() async throws -> [Paint]`, `create(name:drawingData:) async throws -> Paint`, `updateDrawing(id:drawingData:) async throws`, `rename(id:to:) async throws`, `delete(id:) async throws` e `importPaint(_ model: PaintExchangeModel) async throws -> Paint`
-- [ ] Criar `PaintAR/src/data/CoreDataPaintRepository.swift` e `PaintAR/src/data/PaintFileService.swift` com as assinaturas públicas e corpos `throw PaintError.notFound` / `fatalError("não implementado")`
-- [ ] Verificação: `xcodebuild -workspace PaintAR.xcworkspace -scheme PaintAR -destination 'generic/platform=iOS' build` compila com os arquivos novos, e `grep -c "func " PaintAR/src/domain/repository/PaintRepository.swift` retorna 6 — o protocolo tem as seis operações que os testes da Fase 3 vão exercitar
+- [x] Criar `PaintAR/src/domain/model/Paint.swift`: `struct Paint: Identifiable, Hashable, Sendable` com `id: UUID`, `name: String`, `date: Date`, `drawingData: Data`; `init?(entity: PaintEntity)` retornando `nil` se `id`, `name`, `date` ou `drawing` forem nulos; e o `convenience init` de `PaintEntity` migrado de `PaintModel.swift`
+- [x] Criar `PaintAR/src/domain/model/PaintExchangeModel.swift`: `struct PaintExchangeModel: Codable` com as chaves atuais `id`/`name`/`date`/`drawing`, `static let dateFormatter` em `"yyyy-MM-dd HH:mm:ss Z"` / `en_US_POSIX` / GMT, `init(paint:)` e `func toPaint() throws -> Paint`
+- [x] Criar `PaintAR/src/domain/model/PaintError.swift`: `enum PaintError: LocalizedError` com `invalidDate`, `invalidDrawingData`, `notFound`, `persistenceFailed(String)`
+- [x] Criar `PaintAR/src/domain/repository/PaintRepository.swift`: `protocol PaintRepository: Sendable` com `fetchAll() async throws -> [Paint]`, `create(name:drawingData:) async throws -> Paint`, `updateDrawing(id:drawingData:) async throws`, `rename(id:to:) async throws`, `delete(id:) async throws` e `importPaint(_ model: PaintExchangeModel) async throws -> Paint`
+- [x] Criar `PaintAR/src/data/CoreDataPaintRepository.swift` e `PaintAR/src/data/PaintFileService.swift` com as assinaturas públicas e corpos `throw PaintError.notFound` / `fatalError("não implementado")`
+- [x] Verificação: `xcodebuild -workspace PaintAR.xcworkspace -scheme PaintAR -destination 'generic/platform=iOS' build` compila com os arquivos novos, e `grep -c "func " PaintAR/src/domain/repository/PaintRepository.swift` retorna 6 — o protocolo tem as seis operações que os testes da Fase 3 vão exercitar; build concluído em 2026-09-09
 
 ### Fase 3 — Testes (contrato antes da implementação)
 
 > Os testes vão falhar inicialmente — isso é intencional.
 
-- [ ] Remover `PaintARTests/PaintARTests.swift` (scaffold sem asserção)
-- [ ] Criar `PaintARTests/PaintMappingTests.swift`: entidade completa vira `Paint` com os mesmos valores; entidade com `drawing` nulo retorna `nil`; entidade com `name` nulo retorna `nil`
-- [ ] Criar `PaintARTests/PaintExchangeTests.swift`: round-trip `Paint → PaintExchangeModel → Paint` preserva id/nome/data/bytes; decodificar um JSON fixo no formato exportado hoje (`"2025-02-28 12:00:00 +0000"`, drawing em Base64) produz o `Paint` esperado; data em formato inválido lança `PaintError.invalidDate`; Base64 inválido lança `PaintError.invalidDrawingData`
-- [ ] Criar `PaintARTests/PaintRepositoryTests.swift` sobre `PersistenceController(inMemory: true)`: `create` seguido de `fetchAll` devolve o item; `fetchAll` vem ordenado por data decrescente; `rename` **persiste em um contexto novo** (o teste que pega o bug atual); `updateDrawing` troca os bytes e atualiza a data; `delete` remove; `delete` de id inexistente lança `notFound`; `importPaint` grava e devolve o `Paint`
-- [ ] Verificação: `xcodebuild -workspace PaintAR.xcworkspace -scheme PaintAR -destination 'platform=iOS Simulator,name=iPhone 17 Pro' -only-testing:PaintARTests test` compila e falha nas asserções (não em erro de sintaxe ou símbolo ausente)
+- [x] Remover `PaintARTests/PaintARTests.swift` (scaffold sem asserção)
+- [x] Criar `PaintARTests/PaintMappingTests.swift`: entidade completa vira `Paint` com os mesmos valores; entidade com `drawing` nulo retorna `nil`; entidade com `name` nulo retorna `nil`
+- [x] Criar `PaintARTests/PaintExchangeTests.swift`: round-trip `Paint → PaintExchangeModel → Paint` preserva id/nome/data/bytes; decodificar um JSON fixo no formato exportado hoje (`"2025-02-28 12:00:00 +0000"`, drawing em Base64) produz o `Paint` esperado; data em formato inválido lança `PaintError.invalidDate`; Base64 inválido lança `PaintError.invalidDrawingData`
+- [x] Criar `PaintARTests/PaintRepositoryTests.swift` sobre `PersistenceController(inMemory: true)`: `create` seguido de `fetchAll` devolve o item; `fetchAll` vem ordenado por data decrescente; `rename` **persiste em um contexto novo** (o teste que pega o bug atual); `updateDrawing` troca os bytes e atualiza a data; `delete` remove; `delete` de id inexistente lança `notFound`; `importPaint` grava e devolve o `Paint`
+- [x] Verificação: `xcodebuild -workspace PaintAR.xcworkspace -scheme PaintAR -destination 'platform=iOS Simulator,name=iPhone 17 Pro' -only-testing:PaintARTests test` compila e falha somente nas seis operações ainda stubadas com `PaintError.notFound` (8 testes passam, 6 falham; sem erro de sintaxe ou símbolo ausente) em 2026-09-09
 
 ### Fase 4 — Implementação do repositório
 
-- [ ] Implementar `CoreDataPaintRepository` em `PaintAR/src/data/CoreDataPaintRepository.swift`: cada operação em `context.perform` sobre `newBackgroundContext()`, `fetchAll` com `NSSortDescriptor(keyPath: \PaintEntity.date, ascending: false)` mapeando por `Paint(entity:)` e descartando os `nil`, escrita sempre seguida de `context.save()`
-- [ ] Implementar `PaintFileService` em `PaintAR/src/data/PaintFileService.swift`: `export(_ paint: Paint) throws -> URL` gravando `JSONEncoder` com `.prettyPrinted` em `FileManager.default.temporaryDirectory` com nome derivado do `paint.name` saneado (fallback `desenho.json` para nome vazio), e `decode(fileAt url: URL) throws -> PaintExchangeModel` com `startAccessingSecurityScopedResource`/`stopAccessing` em `defer`
-- [ ] Remover `PaintAR/src/data/CoreDataController.swift`, `PaintAR/src/data/ShareFileController.swift` e `PaintAR/src/domain/model/PaintModel.swift`
-- [ ] Verificação: `xcodebuild -workspace PaintAR.xcworkspace -scheme PaintAR -destination 'platform=iOS Simulator,name=iPhone 17 Pro' -only-testing:PaintARTests test` passa inteiro
+- [x] Implementar `CoreDataPaintRepository` em `PaintAR/src/data/CoreDataPaintRepository.swift`: cada operação em `context.perform` sobre `newBackgroundContext()`, `fetchAll` com `NSSortDescriptor(keyPath: \PaintEntity.date, ascending: false)` mapeando por `Paint(entity:)` e descartando os `nil`, escrita sempre seguida de `context.save()`
+- [x] Implementar `PaintFileService` em `PaintAR/src/data/PaintFileService.swift`: `export(_ paint: Paint) throws -> URL` gravando `JSONEncoder` com `.prettyPrinted` em `FileManager.default.temporaryDirectory` com nome derivado do `paint.name` saneado (fallback `desenho.json` para nome vazio), e `decode(fileAt url: URL) throws -> PaintExchangeModel` com `startAccessingSecurityScopedResource`/`stopAccessing` em `defer`
+- [x] Remover `PaintAR/src/data/CoreDataController.swift`, `PaintAR/src/data/ShareFileController.swift` e `PaintAR/src/domain/model/PaintModel.swift`
+- [x] Verificação: `xcodebuild -workspace PaintAR.xcworkspace -scheme PaintAR -destination 'platform=iOS Simulator,name=iPhone 17 Pro' -only-testing:PaintARTests test` passa inteiro (14 testes em 2026-09-09)
 
 ### Fase 5 — Rewire das telas atuais (sem redesenho)
 
-- [ ] Renomear `PaintAR/AppDelegate.swift` para `PaintAR/PaintARApp.swift`: remover a classe `AppDelegate` vazia e o `@UIApplicationDelegateAdaptor`, e construir `CoreDataPaintRepository(persistence: .shared)` uma única vez, passando-o a `HomeView`
-- [ ] Em `PaintAR/src/views/home/viewModel/HomeViewModel.swift`: injetar `PaintRepository` pelo `init`, `HomeState` passa a carregar `[Paint]`, `fetchPaints`/`deletePaint` viram `async` sobre o repositório e todos os `DispatchQueue.main.asyncAfter(deadline: .now() + 0.5)` saem
-- [ ] Em `PaintAR/src/views/paint/PaintView.swift` e `PaintAR/src/views/home/components/HomeCardPaint.swift`: trocar `CoreDataController()` por chamadas ao repositório injetado, dentro de `Task`; trocar os force unwraps (`paintEntity.drawing!`, `.name!`, `.date!`, `.id!`) pelos campos não-opcionais de `Paint`
-- [ ] Verificação: `grep -rn "CoreDataController\|ShareFileController\|PaintModelJson\|asyncAfter" PaintAR/` não retorna nada, e o build + a suíte `-only-testing:PaintARTests` passam
-- [ ] Checkpoint: commit das mudanças da parte + resumo curto do que ficou pronto, seguindo direto para a parte 2
+- [x] Renomear `PaintAR/AppDelegate.swift` para `PaintAR/PaintARApp.swift`: remover a classe `AppDelegate` vazia e o `@UIApplicationDelegateAdaptor`, e construir `CoreDataPaintRepository(persistence: .shared)` uma única vez, passando-o a `HomeView`
+- [x] Em `PaintAR/src/views/home/viewModel/HomeViewModel.swift`: injetar `PaintRepository` pelo `init`, `HomeState` passa a carregar `[Paint]`, `fetchPaints`/`deletePaint` viram `async` sobre o repositório e todos os `DispatchQueue.main.asyncAfter(deadline: .now() + 0.5)` saem
+- [x] Em `PaintAR/src/views/paint/PaintView.swift` e `PaintAR/src/views/home/components/HomeCardPaint.swift`: trocar `CoreDataController()` por chamadas ao repositório injetado, dentro de `Task`; trocar os force unwraps (`paintEntity.drawing!`, `.name!`, `.date!`, `.id!`) pelos campos não-opcionais de `Paint`
+- [x] Verificação: `grep -rn "CoreDataController\|ShareFileController\|PaintModelJson\|asyncAfter" PaintAR/` não retorna nada; o build de dispositivo e a suíte `-only-testing:PaintARTests` passaram (14 testes) em 2026-09-09
+- [x] Checkpoint: commit das mudanças da parte; container único, repositório protocolar, troca JSON e telas adaptadas estão prontos, seguindo direto para a parte 2
 
 ## Critérios de Sucesso
 
-- [ ] `grep -rn "IPHONEOS_DEPLOYMENT_TARGET" PaintAR.xcodeproj/project.pbxproj` retorna apenas `18.0`
-- [ ] Nenhum `NSPersistentContainer` é criado fora de `PersistenceController`
-- [ ] O teste que renomeia e relê num contexto novo passa — a gravação silenciosamente perdida deixa de acontecer
-- [ ] Um JSON no formato exportado pela versão atual do app ainda importa
-- [ ] Build sem erros
-- [ ] Todos os testes unitários passando
+- [x] `grep -rn "IPHONEOS_DEPLOYMENT_TARGET" PaintAR.xcodeproj/project.pbxproj` retorna apenas `18.0`
+- [x] Nenhum `NSPersistentContainer` é criado fora de `PersistenceController`
+- [x] O teste que renomeia e relê num contexto novo passa — a gravação silenciosamente perdida deixa de acontecer
+- [x] Um JSON no formato exportado pela versão atual do app ainda importa
+- [x] Build sem erros
+- [x] Todos os testes unitários passando
 - [ ] _(manual — feito pelo usuário)_ Validação funcional no app: editar um desenho, fechar e reabrir o app, confirmar que a alteração ficou
 
 ## Riscos e Mitigações

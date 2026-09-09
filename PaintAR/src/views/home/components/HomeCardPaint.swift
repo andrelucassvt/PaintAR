@@ -1,24 +1,18 @@
-//
-//  HomeCardPaint.swift
-//  PaintAR
-//
-//  Created by André  Lucas on 27/02/25.
-//
-
-import CoreData
 import PencilKit
 import SwiftUI
 
 struct DrawingViewContainer: UIViewRepresentable {
-    var drawingData: Data
+    let drawingData: Data
 
     func makeUIView(context: Context) -> PKCanvasView {
         let canvasView = PKCanvasView()
         canvasView.backgroundColor = .clear
         canvasView.isUserInteractionEnabled = false
+
         if let drawing = try? PKDrawing(data: drawingData) {
             canvasView.drawing = drawing
         }
+
         return canvasView
     }
 
@@ -26,35 +20,18 @@ struct DrawingViewContainer: UIViewRepresentable {
 }
 
 struct HomeCardPaint: View {
+    let paint: Paint
+    let repository: any PaintRepository
+    let fileService: PaintFileService
+    let onDelete: () async -> Void
+    let onRename: (String) async -> Void
+    let onRefresh: () async -> Void
 
-    let paintEntity: PaintEntity
-    let onDelete: () -> Void
-    let onRefresh: () -> Void
-
-    @State var showAlertDelete = false
-    @State var isEditing = false
-    @State var showRename = false
-    @State var name = ""
-    let canvasView = PKCanvasView()
-
-    private let coreDataController = CoreDataController()
-    let shareController = ShareFileController()
-
-    @State var urlShare = URL(fileURLWithPath: "")
-
-    private func canvasInit() {
-        if let paintData = paintEntity.drawing {
-            if let drawing = try? PKDrawing(data: paintData) {
-                canvasView.drawing = drawing
-            }
-        }
-    }
-
-    func urlShareInit() {
-        if let fileURL = shareController.exportPaintEntityAsJson(paintEntity: paintEntity) {
-            urlShare = fileURL
-        }
-    }
+    @State private var showAlertDelete = false
+    @State private var isEditing = false
+    @State private var showRename = false
+    @State private var name = ""
+    @State private var shareURL: URL?
 
     var body: some View {
         VStack {
@@ -62,42 +39,32 @@ struct HomeCardPaint: View {
                 .fill(Color.white)
                 .frame(height: 300)
                 .shadow(radius: 5)
-                .overlay(
-                    DrawingViewContainer(drawingData: paintEntity.drawing!)
+                .overlay {
+                    DrawingViewContainer(drawingData: paint.drawingData)
                         .clipShape(RoundedRectangle(cornerRadius: 20))
-                )
+                }
                 .overlay {
                     VStack {
                         HStack {
                             Spacer()
                             Menu {
-                                ShareLink(
-                                    item: urlShare,
-                                    preview: SharePreview(paintEntity.name!, image: urlShare)
-                                ) {
-                                    Label(
-                                        LocalizedStringKey("export"),
-                                        systemImage: "square.and.arrow.up")
-                                }
+                                exportAction
                                 Button {
-                                    isEditing.toggle()
+                                    isEditing = true
                                 } label: {
                                     Text(LocalizedStringKey("edit"))
                                 }
                                 Button {
-                                    showRename.toggle()
+                                    name = paint.name
+                                    showRename = true
                                 } label: {
                                     Text(LocalizedStringKey("rename"))
                                 }
-                                Button(
-                                    role: .destructive,
-                                    action: {
-                                        showAlertDelete = true
-                                    }
-                                ) {
+                                Button(role: .destructive) {
+                                    showAlertDelete = true
+                                } label: {
                                     Text(LocalizedStringKey("delete"))
                                 }
-
                             } label: {
                                 Circle()
                                     .frame(width: 30, height: 30)
@@ -107,88 +74,82 @@ struct HomeCardPaint: View {
                                             .foregroundColor(.white)
                                     }
                             }
-                            .alert(
-                                LocalizedStringKey("deleteDrawing"), isPresented: $showAlertDelete
-                            ) {
-                                Button(LocalizedStringKey("delete"), role: .destructive) {
-                                    onDelete()
-                                }
-                                Button(LocalizedStringKey("cancel"), role: .cancel) {}
-                            }
-                            .alert(LocalizedStringKey("rename"), isPresented: $showRename) {
-                                VStack {
-                                    TextField(LocalizedStringKey("nameDrawing"), text: $name)
-
-                                    Button(
-                                        LocalizedStringKey("cancel"),
-                                        action: {
-                                            name = ""
-                                        })
-
-                                    Button(
-                                        LocalizedStringKey("save"),
-                                        action: {
-                                            coreDataController.updatePaint(
-                                                paint: paintEntity,
-                                                id: paintEntity.id!,
-                                                name: name,
-                                                date: Date(),
-                                                drawing: paintEntity.drawing!
-                                            )
-                                            name = ""
-                                        })
-
-                                }
-
-                            }
-
                         }
                         .padding()
                         Spacer()
                     }
                 }
                 .onTapGesture {
-                    isEditing.toggle()
+                    isEditing = true
+                }
+                .alert(
+                    LocalizedStringKey("deleteDrawing"),
+                    isPresented: $showAlertDelete
+                ) {
+                    Button(LocalizedStringKey("delete"), role: .destructive) {
+                        Task {
+                            await onDelete()
+                        }
+                    }
+                    Button(LocalizedStringKey("cancel"), role: .cancel) {}
+                }
+                .alert(LocalizedStringKey("rename"), isPresented: $showRename) {
+                    TextField(LocalizedStringKey("nameDrawing"), text: $name)
+                    Button(LocalizedStringKey("cancel")) {
+                        name = ""
+                    }
+                    Button(LocalizedStringKey("save")) {
+                        let updatedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+                        guard !updatedName.isEmpty else {
+                            return
+                        }
+
+                        name = ""
+                        Task {
+                            await onRename(updatedName)
+                        }
+                    }
                 }
                 .padding([.bottom, .leading, .trailing])
+
             HStack {
-                Text(paintEntity.name!)
+                Text(paint.name)
                     .foregroundStyle(.black)
                 Spacer()
-                Text(paintEntity.date!.formatted())
+                Text(paint.date.formatted())
                     .foregroundStyle(.black)
             }
             .padding(.horizontal)
         }
         .navigationDestination(isPresented: $isEditing) {
-            PaintView(
-                paintEntity: paintEntity
-            )
-            .onDisappear {
-                onRefresh()
-            }
+            PaintView(paint: paint, repository: repository)
+                .onDisappear {
+                    Task {
+                        await onRefresh()
+                    }
+                }
         }
         .onAppear {
-            canvasInit()
-            urlShareInit()
+            shareURL = try? fileService.export(paint)
         }
         .padding(.top)
     }
 
-}
-
-#Preview {
-    NavigationStack {
-        HomeCardPaint(
-            paintEntity: PaintEntity(
-                context: CoreDataController.shared.context, name: "Andre Lucas", date: Date(),
-                drawing: Data()),
-            onDelete: {
-
-            },
-            onRefresh: {
-
+    @ViewBuilder
+    private var exportAction: some View {
+        if let shareURL {
+            ShareLink(
+                item: shareURL,
+                preview: SharePreview(paint.name, image: shareURL)
+            ) {
+                Label(LocalizedStringKey("export"), systemImage: "square.and.arrow.up")
             }
-        )
+        } else {
+            Button {
+                shareURL = try? fileService.export(paint)
+            } label: {
+                Label(LocalizedStringKey("export"), systemImage: "square.and.arrow.up")
+            }
+        }
     }
 }

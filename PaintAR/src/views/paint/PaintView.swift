@@ -1,177 +1,180 @@
-//
-//  PaintView.swift
-//  PaintAR
-//
-//  Created by André  Lucas on 27/02/25.
-//
-
-import SwiftUI
 import PencilKit
+import SwiftUI
 
 struct DrawingView: UIViewRepresentable {
     @Binding var toolPickerShows: Bool
-    
-    public let canvasView: PKCanvasView
-    public let toolPicker: PKToolPicker
-    
+    let canvasView: PKCanvasView
+    let toolPicker: PKToolPicker
+
     func makeUIView(context: Context) -> PKCanvasView {
         canvasView.drawingPolicy = .anyInput
         canvasView.backgroundColor = .white
-        
-        // Performance optimizations
         canvasView.isOpaque = true
         canvasView.minimumZoomScale = 1
-        canvasView.maximumZoomScale = 3.0
-        
+        canvasView.maximumZoomScale = 3
+
         toolPicker.setVisible(toolPickerShows, forFirstResponder: canvasView)
         toolPicker.addObserver(canvasView)
-        
+
         if toolPickerShows {
             canvasView.becomeFirstResponder()
         }
-     
+
         return canvasView
     }
-    
+
     func updateUIView(_ canvasView: PKCanvasView, context: Context) {
         toolPicker.setVisible(toolPickerShows, forFirstResponder: canvasView)
-        
+
         if toolPickerShows {
             canvasView.becomeFirstResponder()
         } else {
             canvasView.resignFirstResponder()
         }
     }
-    
-    func makeCoordinator() -> Coordinator {
-        Coordinator(self)
-    }
-    
-    class Coordinator: NSObject {
-        var parent: DrawingView
-        
-        init(_ parent: DrawingView) {
-            self.parent = parent
-        }
-    }
-
 }
+
 struct PaintView: View {
+    let paint: Paint?
+    let repository: any PaintRepository
+
     @State private var canvasView = PKCanvasView()
     @State private var toolPicker = PKToolPicker()
     @State private var toolPickerShows = true
-    @State var showAlertSave = false
-    @State var name = ""
-    @Environment(\.dismiss) var dismiss
-    private let coreDataController = CoreDataController()
-    var paintEntity: PaintEntity?
-    
-    private func canvasInit() -> Void {
-        if paintEntity != nil {
-            if let paintData = paintEntity!.drawing {
-                if let drawing = try? PKDrawing(data: paintData) {
-                    canvasView.drawing = drawing
-                }
-            }
+    @State private var showAlertSave = false
+    @State private var name = ""
+    @State private var saveError: String?
+    @Environment(\.dismiss) private var dismiss
 
-        }
+    init(paint: Paint? = nil, repository: any PaintRepository) {
+        self.paint = paint
+        self.repository = repository
     }
-    
-    var body: some View {
-        DrawingView(toolPickerShows: $toolPickerShows, canvasView: canvasView, toolPicker: toolPicker)
-            .navigationTitle(Text("Paint"))
-            .toolbar{
-                ToolbarItem(placement: .navigationBarLeading) {
-                    HStack{
-                        Button {
-                            if canvasView.undoManager?.canUndo ?? false {
-                                canvasView.undoManager?.undo()
-                            }
-                        } label: {
-                            Image(systemName: "arrow.uturn.backward.circle")
-                        }
-                        Button {
-                            if canvasView.undoManager?.canRedo ?? false {
-                                canvasView.undoManager?.redo()
-                            }
-                        } label: {
-                            Image(systemName: "arrow.uturn.forward.circle")
-                        }                    }
-                }
-                ToolbarItem {
-                    HStack(spacing: 10) {
-                        Button {
-                            toolPickerShows.toggle()
-                        } label: {
-                            Image(systemName: "paintpalette")
-                        }
-                        Button("", systemImage: "eraser") {
-                            canvasView.drawing.strokes.removeAll()
-                        }
-                        NavigationLink {
-                          PaintAR(canvas: canvasView)
-                            
-                        } label: {
-                            Image(systemName: "arkit")
-                        }
-                        
-                        Button {
-                            if paintEntity != nil {
-                                coreDataController.updatePaint(
-                                    paint: paintEntity!,
-                                    id: paintEntity!.id!,
-                                    name: paintEntity!.name!,
-                                    date: Date(),
-                                    drawing: canvasView.drawing.dataRepresentation()
-                                )
-                                dismiss()
-                            } else {
-                                showAlertSave.toggle()
-                            }
-                        } label: {
-                            Text(paintEntity != nil ? LocalizedStringKey("update")  :  LocalizedStringKey("save"))
-                        }
-                        .alert(LocalizedStringKey("nameDrawing"), isPresented: $showAlertSave) {
-                            VStack{
-                                TextField(LocalizedStringKey("nameDrawing"), text: $name)
-                                
-                                HStack{
-                                    Button(LocalizedStringKey("cancel"), action: {
-                                        self.showAlertSave.toggle()
-                                        name = ""
-                                    })
-                                    Button(LocalizedStringKey("save"), action: {
-                                        coreDataController.savePaint(
-                                            name: name,
-                                            date: Date(),
-                                            drawing: canvasView.drawing.dataRepresentation()
-                                        )
-                                        showAlertSave.toggle()
-                                        canvasView.drawing.strokes.removeAll()
-                                        dismiss()
-                                       
-                                    })
-                                }
 
-                            }
-             
-                        } message: {
-                            Text(LocalizedStringKey("saveDrawing"))
+    var body: some View {
+        DrawingView(
+            toolPickerShows: $toolPickerShows,
+            canvasView: canvasView,
+            toolPicker: toolPicker
+        )
+        .navigationTitle(Text("Paint"))
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                HStack {
+                    Button {
+                        if canvasView.undoManager?.canUndo ?? false {
+                            canvasView.undoManager?.undo()
                         }
+                    } label: {
+                        Image(systemName: "arrow.uturn.backward.circle")
+                    }
+                    Button {
+                        if canvasView.undoManager?.canRedo ?? false {
+                            canvasView.undoManager?.redo()
+                        }
+                    } label: {
+                        Image(systemName: "arrow.uturn.forward.circle")
                     }
                 }
-
             }
-            .onAppear{
-                toolPickerShows = true
-                canvasInit()
+            ToolbarItem {
+                HStack(spacing: 10) {
+                    Button {
+                        toolPickerShows.toggle()
+                    } label: {
+                        Image(systemName: "paintpalette")
+                    }
+                    Button("", systemImage: "eraser") {
+                        canvasView.drawing.strokes.removeAll()
+                    }
+                    NavigationLink {
+                        PaintAR(canvas: canvasView)
+                    } label: {
+                        Image(systemName: "arkit")
+                    }
+                    Button {
+                        if paint == nil {
+                            showAlertSave = true
+                        } else {
+                            updatePaint()
+                        }
+                    } label: {
+                        Text(paint == nil ? LocalizedStringKey("save") : LocalizedStringKey("update"))
+                    }
+                    .alert(LocalizedStringKey("nameDrawing"), isPresented: $showAlertSave) {
+                        TextField(LocalizedStringKey("nameDrawing"), text: $name)
+                        Button(LocalizedStringKey("cancel")) {
+                            name = ""
+                        }
+                        Button(LocalizedStringKey("save")) {
+                            createPaint()
+                        }
+                    } message: {
+                        Text(LocalizedStringKey("saveDrawing"))
+                    }
+                }
             }
+        }
+        .alert(
+            Text("Error"),
+            isPresented: Binding(
+                get: { saveError != nil },
+                set: { if !$0 { saveError = nil } }
+            )
+        ) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(saveError ?? "")
+        }
+        .onAppear {
+            toolPickerShows = true
+            loadCanvas()
+        }
     }
-    
-}
 
-#Preview {
-    NavigationView{
-        PaintView()
+    private func loadCanvas() {
+        guard
+            let paint,
+            let drawing = try? PKDrawing(data: paint.drawingData)
+        else {
+            return
+        }
+
+        canvasView.drawing = drawing
+    }
+
+    private func createPaint() {
+        let drawingData = canvasView.drawing.dataRepresentation()
+        let paintName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !paintName.isEmpty else {
+            return
+        }
+
+        Task {
+            do {
+                _ = try await repository.create(name: paintName, drawingData: drawingData)
+                name = ""
+                showAlertSave = false
+                dismiss()
+            } catch {
+                saveError = error.localizedDescription
+            }
+        }
+    }
+
+    private func updatePaint() {
+        guard let paint else {
+            return
+        }
+
+        let drawingData = canvasView.drawing.dataRepresentation()
+        Task {
+            do {
+                try await repository.updateDrawing(id: paint.id, drawingData: drawingData)
+                dismiss()
+            } catch {
+                saveError = error.localizedDescription
+            }
+        }
     }
 }

@@ -1,168 +1,178 @@
 import SwiftUI
 
+@MainActor
 struct HomeView: View {
-    @ObservedObject var viewModel: HomeViewModel
-    
-    init(viewModel: HomeViewModel = .init()) {
-        self.viewModel = viewModel
+    private let repository: any PaintRepository
+    private let fileService: PaintFileService
+    @State private var viewModel: HomeViewModel
+
+    init(
+        repository: any PaintRepository,
+        fileService: PaintFileService = .init()
+    ) {
+        self.repository = repository
+        self.fileService = fileService
+        _viewModel = State(
+            initialValue: HomeViewModel(
+                repository: repository,
+                fileService: fileService
+            )
+        )
     }
-    
+
     var body: some View {
-        ZStack(alignment: .bottom) {
-            NavigationStack {
-                Group {
-                    switch viewModel.state {
-                    case .loading:
-                        ScrollView {
-                            VStack {
-                                ProgressView()
-                                    .scaleEffect(1.5)
-                                    .padding()
-                                Spacer(minLength: 60)
-                            }
-                        }
-                    case .error(let errorMessage):
-                        VStack(spacing: 20) {
-                            Image(systemName: "exclamationmark.triangle")
-                                .font(.system(size: 40))
-                                .foregroundColor(.red)
-                            Text("Error: \(errorMessage)")
-                                .multilineTextAlignment(.center)
+        @Bindable var viewModel = viewModel
+
+        NavigationStack {
+            Group {
+                switch viewModel.state {
+                case .loading:
+                    ScrollView {
+                        VStack {
+                            ProgressView()
+                                .scaleEffect(1.5)
                                 .padding()
-                            Button("Try Again") {
-                                viewModel.fetchPaints()
+                            Spacer(minLength: 60)
+                        }
+                    }
+                case .error(let errorMessage):
+                    VStack(spacing: 20) {
+                        Image(systemName: "exclamationmark.triangle")
+                            .font(.system(size: 40))
+                            .foregroundColor(.red)
+                        Text(errorMessage)
+                            .multilineTextAlignment(.center)
+                            .padding()
+                        Button(LocalizedStringKey("Try Again")) {
+                            Task {
+                                await viewModel.fetchPaints()
                             }
                         }
-                        
-                    case .loaded(let paints):
-                        if paints.isEmpty {
-                            VStack(spacing: 20) {
-                                Image(systemName: "paintbrush")
-                                    .font(.system(size: 60))
-                                    .foregroundColor(.gray)
-                                Text(LocalizedStringKey("noDrawing"))
-                                    .font(.headline)
+                    }
+                case .loaded(let paints):
+                    if paints.isEmpty {
+                        VStack(spacing: 20) {
+                            Image(systemName: "paintbrush")
+                                .font(.system(size: 60))
+                                .foregroundColor(.gray)
+                            Text(LocalizedStringKey("noDrawing"))
+                                .font(.headline)
+                            NavigationLink {
+                                PaintView(repository: repository)
+                                    .onDisappear {
+                                        Task {
+                                            await viewModel.fetchPaints()
+                                        }
+                                    }
+                            } label: {
+                                Label(
+                                    LocalizedStringKey("addFirst"),
+                                    systemImage: "applepencil.and.scribble"
+                                )
+                                .font(.title3)
+                                .padding()
+                                .background(Color.blue)
+                                .foregroundColor(.white)
+                                .cornerRadius(10)
+                            }
+                        }
+                    } else {
+                        ScrollView(showsIndicators: false) {
+                            LazyVStack(spacing: 10) {
                                 NavigationLink {
-                                    PaintView()
+                                    PaintView(repository: repository)
                                         .onDisappear {
-                                            viewModel.fetchPaints()
+                                            Task {
+                                                await viewModel.fetchPaints()
+                                            }
                                         }
                                 } label: {
-                                    Label(LocalizedStringKey("addFirst"), systemImage: "applepencil.and.scribble")
-                                        .font(.title3)
-                                        .padding()
-                                        .background(Color.blue)
-                                        .foregroundColor(.white)
-                                        .cornerRadius(10)
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .fill(.blue)
+                                        .frame(maxWidth: .infinity, minHeight: 50)
+                                        .overlay {
+                                            Text(LocalizedStringKey("add"))
+                                                .foregroundStyle(.white)
+                                        }
+                                        .padding(.horizontal)
                                 }
-                            }
-                        } else {
-                            ScrollView(showsIndicators: false) {
-                                LazyVStack(spacing: 10) {
-                                    NavigationLink {
-                                      PaintView()
-                                          .onDisappear {
-                                              viewModel.fetchPaints()
-                                          }
-                                      } label: {
-                                          RoundedRectangle(cornerRadius: 10)
-                                              .fill(.blue)
-                                              .frame(width: .infinity, height: 50)
-                                              .overlay {
-                                                  Text(LocalizedStringKey("add"))
-                                                      .foregroundStyle(.white)
-                                              }
-                                              .padding(.horizontal)
-                                      }
 
-                       
-                                    ForEach(paints, id: \.id) { paint in
-                                        paintItemView(paint: paint)
-                                    }
+                                ForEach(paints) { paint in
+                                    HomeCardPaint(
+                                        paint: paint,
+                                        repository: repository,
+                                        fileService: fileService,
+                                        onDelete: {
+                                            await viewModel.deletePaint(paint)
+                                        },
+                                        onRename: { name in
+                                            await viewModel.renamePaint(paint, to: name)
+                                        },
+                                        onRefresh: {
+                                            await viewModel.fetchPaints()
+                                        }
+                                    )
                                 }
-                                .padding(.bottom, 20)
                             }
-                            .refreshable {
-                                withAnimation {
-                                    viewModel.fetchPaints()
-                                }
-                            }
+                            .padding(.bottom, 20)
                         }
-                    }
-                }
-                .navigationTitle("TraceAR")
-                .toolbar {
-                    ToolbarItemGroup(placement: .navigationBarTrailing) {
-                        Button {
-                            viewModel.showImportView.toggle()
-                        } label: {
-                            Image(systemName: "square.and.arrow.down")
+                        .refreshable {
+                            await viewModel.fetchPaints()
                         }
-                    }
-                }
-                .sheet(isPresented: $viewModel.showImportView) {
-                    importSheetView
-                }
-                .alert(item: $viewModel.activeAlert) { alertType in
-                    switch alertType {
-                    case .error(_):
-                        return Alert(
-                            title: Text("Error"),
-                            message: Text(LocalizedStringKey("invalidJson")),
-                            dismissButton: .default(Text("OK"))
-                        )
-                    case .success:
-                        return Alert(
-                            title: Text(LocalizedStringKey("sucess")),
-                            message: Text(LocalizedStringKey("drawingAdd")),
-                            dismissButton: .default(Text("OK"))
-                        )
                     }
                 }
             }
-            .navigationViewStyle(.stack)
-        }
-        .ignoresSafeArea(.keyboard) // evita conflito com o teclado
-    }
-    
-    @ViewBuilder
-    private func paintItemView(paint: PaintEntity) -> some View {
-        NavigationLink {
-            PaintView(paintEntity: paint)
-                .onDisappear {
-                    viewModel.fetchPaints()
-                }
-        } label: {
-            HomeCardPaint(
-                paintEntity: paint,
-                onDelete: {
-                    withAnimation(.easeInOut) {
-                        viewModel.deletePaint(paint)
+            .navigationTitle("TraceAR")
+            .toolbar {
+                ToolbarItemGroup(placement: .navigationBarTrailing) {
+                    Button {
+                        viewModel.showImportView.toggle()
+                    } label: {
+                        Image(systemName: "square.and.arrow.down")
                     }
-                },
-                onRefresh: {
-                    viewModel.fetchPaints()
                 }
-            )
+            }
+            .sheet(isPresented: $viewModel.showImportView) {
+                importSheetView(viewModel: viewModel)
+            }
+            .alert(item: $viewModel.activeAlert) { alertType in
+                switch alertType {
+                case .error(let message):
+                    Alert(
+                        title: Text("Error"),
+                        message: Text(message),
+                        dismissButton: .default(Text("OK"))
+                    )
+                case .success:
+                    Alert(
+                        title: Text(LocalizedStringKey("sucess")),
+                        message: Text(LocalizedStringKey("drawingAdd")),
+                        dismissButton: .default(Text("OK"))
+                    )
+                }
+            }
         }
+        .task {
+            await viewModel.fetchPaints()
+        }
+        .ignoresSafeArea(.keyboard)
     }
 
-    
-    private var importSheetView: some View {
+    private func importSheetView(viewModel: HomeViewModel) -> some View {
         VStack {
             Spacer()
             Text(LocalizedStringKey("importDrawing"))
                 .font(.title2)
                 .fontWeight(.bold)
                 .padding([.top, .bottom])
-            
+
             Text(LocalizedStringKey("importDrawingUsers"))
                 .font(.subheadline)
                 .foregroundColor(.gray)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
                 .padding(.bottom, 30)
-            
+
             Button {
                 viewModel.importActivated.toggle()
             } label: {
@@ -173,24 +183,23 @@ struct HomeView: View {
                     .cornerRadius(8)
             }
             .fileImporter(
-                isPresented: $viewModel.importActivated,
+                isPresented: Binding(
+                    get: { viewModel.importActivated },
+                    set: { viewModel.importActivated = $0 }
+                ),
                 allowedContentTypes: [.json]
             ) { result in
                 switch result {
                 case .success(let file):
-                    viewModel.addImportFile(path: file.absoluteString)
+                    Task {
+                        await viewModel.importPaint(from: file)
+                    }
                 case .failure(let error):
-                    print("File import error: \(error.localizedDescription)")
-                    viewModel.handleError("Failed to import file: \(error.localizedDescription)")
+                    viewModel.handleError(error)
                 }
             }
             Spacer()
         }
         .padding()
     }
-}
-
-// MARK: - Preview
-#Preview {
-    HomeView(viewModel: HomeViewModel())
 }
