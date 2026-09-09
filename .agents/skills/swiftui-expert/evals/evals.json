@@ -1,0 +1,41 @@
+{
+  "skill_name": "swiftui-expert",
+  "evals": [
+    {
+      "id": 1,
+      "name": "feature-rest-ios15",
+      "prompt": "Crie uma feature de lista de produtos consumindo uma API REST em um app com deployment target iOS 15. O projeto usa MVVM, ViewState, Repository com protocolo, previews e Swift Testing. Inclua busca, paginação e estados vazio/erro/loading.",
+      "expected_output": "Implementação ou plano coerente com o padrão existente, imports corretos, dependências injetadas, APIs compatíveis com iOS 15 e testes determinísticos.",
+      "assertions": [
+        "Usa NavigationView/ObservableObject quando o target mínimo é iOS 15",
+        "Não cria instâncias de serviços dentro do ViewModel ou da View",
+        "Trata cancelamento e paginação sem apagar dados já carregados"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "review-swift-concurrency",
+      "prompt": "Revise este padrão de cliente e ViewModel SwiftUI para Swift 6: um APIClient final class guarda JSONDecoder, tokenProvider mutável e URLSession; o protocolo é Sendable; o ViewModel chama load em .task e transforma todo erro em uma mensagem. Aponte riscos de isolamento, cancelamento, resultados obsoletos e UI.",
+      "expected_output": "Revisão baseada em evidências, distinguindo deployment target de linguagem, propondo isolamento adequado, tratamento de CancellationError e estado de UI seguro.",
+      "assertions": [
+        "Não recomenda Sendable para referência com estado mutável sem proteção",
+        "Não apresenta CancellationError como erro visível ao usuário",
+        "Indica como evitar resultados de uma requisição antiga sobrescreverem a atual"
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "name": "diagnose-slow-list",
+      "prompt": "Minha tela SwiftUI tem lag ao rolar uma lista de 2.000 itens. O body ordena e filtra a coleção, cada row lê um AppModel global e as imagens são criadas com UIImage(data:). Quero um diagnóstico priorizado e um plano de medição antes/depois.",
+      "expected_output": "Diagnóstico que separa hipóteses de evidência, recomenda SwiftUI Instruments/Release/device real, identidade estável, escopo de estado e downsampling sem prescrever otimizações não medidas.",
+      "assertions": [
+        "Prioriza medir antes de refatorar",
+        "Identifica trabalho caro no body e dependência ampla por row",
+        "Propõe verificação com métricas comparáveis"
+      ],
+      "files": []
+    }
+  ]
+}
