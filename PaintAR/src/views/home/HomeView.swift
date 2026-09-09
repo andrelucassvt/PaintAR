@@ -4,7 +4,17 @@ import SwiftUI
 struct HomeView: View {
     private let repository: any PaintRepository
     private let fileService: PaintFileService
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Namespace private var paintNamespace
     @State private var viewModel: HomeViewModel
+    @State private var thumbnailStore = DrawingThumbnailStore()
+    @State private var showImportSheet = false
+
+    private let gridColumns = [
+        GridItem(.flexible(), spacing: 14),
+        GridItem(.flexible(), spacing: 14)
+    ]
 
     init(
         repository: any PaintRepository,
@@ -24,182 +34,215 @@ struct HomeView: View {
         @Bindable var viewModel = viewModel
 
         NavigationStack {
-            Group {
-                switch viewModel.state {
-                case .loading:
-                    ScrollView {
-                        VStack {
-                            ProgressView()
-                                .scaleEffect(1.5)
-                                .padding()
-                            Spacer(minLength: 60)
-                        }
-                    }
-                case .error(let errorMessage):
-                    VStack(spacing: 20) {
-                        Image(systemName: "exclamationmark.triangle")
-                            .font(.system(size: 40))
-                            .foregroundColor(.red)
-                        Text(errorMessage)
-                            .multilineTextAlignment(.center)
-                            .padding()
-                        Button(LocalizedStringKey("Try Again")) {
-                            Task {
-                                await viewModel.fetchPaints()
-                            }
-                        }
-                    }
-                case .loaded(let paints):
-                    if paints.isEmpty {
-                        VStack(spacing: 20) {
-                            Image(systemName: "paintbrush")
-                                .font(.system(size: 60))
-                                .foregroundColor(.gray)
-                            Text(LocalizedStringKey("noDrawing"))
-                                .font(.headline)
-                            NavigationLink {
-                                PaintView(repository: repository)
-                                    .onDisappear {
-                                        Task {
-                                            await viewModel.fetchPaints()
-                                        }
-                                    }
-                            } label: {
-                                Label(
-                                    LocalizedStringKey("addFirst"),
-                                    systemImage: "applepencil.and.scribble"
-                                )
-                                .font(.title3)
-                                .padding()
-                                .background(Color.blue)
-                                .foregroundColor(.white)
-                                .cornerRadius(10)
-                            }
-                        }
-                    } else {
-                        ScrollView(showsIndicators: false) {
-                            LazyVStack(spacing: 10) {
-                                NavigationLink {
-                                    PaintView(repository: repository)
-                                        .onDisappear {
-                                            Task {
-                                                await viewModel.fetchPaints()
-                                            }
-                                        }
-                                } label: {
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .fill(.blue)
-                                        .frame(maxWidth: .infinity, minHeight: 50)
-                                        .overlay {
-                                            Text(LocalizedStringKey("add"))
-                                                .foregroundStyle(.white)
-                                        }
-                                        .padding(.horizontal)
-                                }
+            ZStack {
+                Theme.backgroundGradient
+                    .ignoresSafeArea()
 
-                                ForEach(paints) { paint in
-                                    HomeCardPaint(
-                                        paint: paint,
-                                        repository: repository,
-                                        fileService: fileService,
-                                        onDelete: {
-                                            await viewModel.deletePaint(paint)
-                                        },
-                                        onRename: { name in
-                                            await viewModel.renamePaint(paint, to: name)
-                                        },
-                                        onRefresh: {
-                                            await viewModel.fetchPaints()
-                                        }
-                                    )
-                                }
-                            }
-                            .padding(.bottom, 20)
-                        }
-                        .refreshable {
-                            await viewModel.fetchPaints()
-                        }
-                    }
-                }
+                content
             }
-            .navigationTitle("TraceAR")
+            .navigationTitle(Text(LocalizedStringKey("TraceAR")))
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationDestination(for: Paint.self) { paint in
+                paintDestination(for: paint)
+            }
+            .searchable(text: $viewModel.searchText)
             .toolbar {
-                ToolbarItemGroup(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .topBarTrailing) {
                     Button {
-                        viewModel.showImportView.toggle()
+                        showImportSheet = true
                     } label: {
                         Image(systemName: "square.and.arrow.down")
+                            .symbolEffect(.bounce, value: showImportSheet)
                     }
+                    .accessibilityLabel(LocalizedStringKey("import"))
                 }
             }
-            .sheet(isPresented: $viewModel.showImportView) {
-                importSheetView(viewModel: viewModel)
+            .safeAreaInset(edge: .bottom) {
+                NavigationLink {
+                    PaintView(repository: repository)
+                        .onDisappear {
+                            Task {
+                                await viewModel.load()
+                            }
+                        }
+                } label: {
+                    Label(LocalizedStringKey("draw"), systemImage: "applepencil.and.scribble")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 15)
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(Theme.accentInk)
+                .padding(.horizontal, 20)
+                .padding(.top, 8)
+                .background(.ultraThinMaterial)
             }
-            .alert(item: $viewModel.activeAlert) { alertType in
-                switch alertType {
+            .sheet(isPresented: $showImportSheet) {
+                ImportSheet(
+                    onImport: { url in
+                        await viewModel.importFile(at: url)
+                    },
+                    onFailure: { error in
+                        viewModel.handleError(error)
+                    }
+                )
+            }
+            .alert(item: $viewModel.activeAlert) { alert in
+                switch alert {
                 case .error(let message):
                     Alert(
-                        title: Text("Error"),
-                        message: Text(message),
-                        dismissButton: .default(Text("OK"))
+                        title: Text(message),
+                        dismissButton: .default(Text(LocalizedStringKey("OK")))
                     )
                 case .success:
                     Alert(
                         title: Text(LocalizedStringKey("sucess")),
                         message: Text(LocalizedStringKey("drawingAdd")),
-                        dismissButton: .default(Text("OK"))
+                        dismissButton: .default(Text(LocalizedStringKey("OK")))
                     )
                 }
             }
         }
         .task {
-            await viewModel.fetchPaints()
+            await viewModel.load()
         }
         .ignoresSafeArea(.keyboard)
     }
 
-    private func importSheetView(viewModel: HomeViewModel) -> some View {
-        VStack {
-            Spacer()
-            Text(LocalizedStringKey("importDrawing"))
-                .font(.title2)
-                .fontWeight(.bold)
-                .padding([.top, .bottom])
-
-            Text(LocalizedStringKey("importDrawingUsers"))
-                .font(.subheadline)
-                .foregroundColor(.gray)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal)
-                .padding(.bottom, 30)
-
-            Button {
-                viewModel.importActivated.toggle()
-            } label: {
-                Label(LocalizedStringKey("import"), systemImage: "document")
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.blue.opacity(0.1))
-                    .cornerRadius(8)
-            }
-            .fileImporter(
-                isPresented: Binding(
-                    get: { viewModel.importActivated },
-                    set: { viewModel.importActivated = $0 }
-                ),
-                allowedContentTypes: [.json]
-            ) { result in
-                switch result {
-                case .success(let file):
+    @ViewBuilder
+    private var content: some View {
+        switch viewModel.state {
+        case .loading:
+            ProgressView()
+                .controlSize(.large)
+                .tint(Theme.accentInk)
+        case .error(let message):
+            ContentUnavailableView {
+                Label {
+                    Text(message)
+                } icon: {
+                    Image(systemName: "exclamationmark.triangle")
+                }
+            } actions: {
+                Button(LocalizedStringKey("retry")) {
                     Task {
-                        await viewModel.importPaint(from: file)
+                        await viewModel.load()
                     }
-                case .failure(let error):
-                    viewModel.handleError(error)
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(Theme.accentInk)
+            }
+            .foregroundStyle(Theme.textPrimary)
+        case .loaded:
+            if !viewModel.hasPaints {
+                emptyPaintsView
+            } else if viewModel.visiblePaints.isEmpty {
+                ContentUnavailableView.search
+                    .foregroundStyle(Theme.textPrimary)
+            } else {
+                gallery
+            }
+        }
+    }
+
+    private var emptyPaintsView: some View {
+        ContentUnavailableView {
+            Label(LocalizedStringKey("noDrawing"), systemImage: "paintbrush")
+        } description: {
+            Text(LocalizedStringKey("addFirst"))
+        } actions: {
+            NavigationLink {
+                PaintView(repository: repository)
+                    .onDisappear {
+                        Task {
+                            await viewModel.load()
+                        }
+                    }
+            } label: {
+                Label(LocalizedStringKey("draw"), systemImage: "applepencil.and.scribble")
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(Theme.accentInk)
+        }
+        .foregroundStyle(Theme.textPrimary)
+    }
+
+    private var gallery: some View {
+        ScrollView {
+            VStack(spacing: 20) {
+                HStack(alignment: .firstTextBaseline) {
+                    Text(LocalizedStringKey("TraceAR"))
+                        .font(.system(.largeTitle, design: .rounded, weight: .bold))
+                        .foregroundStyle(Theme.textPrimary)
+
+                    Spacer()
+
+                    Text(viewModel.visiblePaints.count, format: .number)
+                        .font(.title3.monospacedDigit().weight(.semibold))
+                        .foregroundStyle(Theme.textSecondary)
+                }
+
+                LazyVGrid(columns: gridColumns, spacing: 14) {
+                    ForEach(viewModel.visiblePaints) { paint in
+                        paintLink(for: paint)
+                    }
                 }
             }
-            Spacer()
+            .padding(.horizontal, 20)
+            .padding(.vertical, 16)
+            .animation(
+                Motion.respecting(reduceMotion, Motion.listChange),
+                value: viewModel.visiblePaints
+            )
         }
-        .padding()
+        .refreshable {
+            await viewModel.load()
+        }
+    }
+
+    @ViewBuilder
+    private func paintLink(for paint: Paint) -> some View {
+        let link = NavigationLink(value: paint) {
+            PaintCard(
+                paint: paint,
+                fileService: fileService,
+                thumbnailStore: thumbnailStore,
+                namespace: paintNamespace,
+                onDelete: {
+                    await viewModel.delete(paint)
+                },
+                onRename: { name in
+                    await viewModel.rename(paint, to: name)
+                }
+            )
+        }
+        .buttonStyle(.plain)
+
+        if reduceMotion {
+            link
+        } else {
+            link.scrollTransition(.animated, axis: .vertical) { content, phase in
+                content
+                    .opacity(phase.isIdentity ? 1 : 0)
+                    .scaleEffect(phase.isIdentity ? 1 : 0.94)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func paintDestination(for paint: Paint) -> some View {
+        let editor = PaintView(paint: paint, repository: repository)
+            .onDisappear {
+                Task {
+                    thumbnailStore.invalidate(id: paint.id)
+                    await viewModel.load()
+                }
+            }
+
+        if reduceMotion {
+            editor
+        } else {
+            editor.navigationTransition(.zoom(sourceID: paint.id, in: paintNamespace))
+        }
     }
 }
