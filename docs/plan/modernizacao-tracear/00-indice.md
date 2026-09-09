@@ -23,7 +23,7 @@ A RA, que é a premissa do app, hoje só existe dentro do editor e tem gestos qu
 | 1 | `01-fundacao-dados.md` | App em iOS 18 sobre um único container Core Data; editar e renomear voltam a persistir de verdade, com as telas atuais intactas | não — abre o contrato `PaintRepository` que as partes 2–4 consomem | — | concluída |
 | 2 | `02-home-redesenhada.md` | Galeria em grid com identidade "studio escuro", miniaturas cacheadas, busca, menu de contexto e transição zoom para o editor | não — a evidência de conclusão do redesenho é validação visual do usuário, não automatizável | 1 | concluída |
 | 3 | `03-editor-paint.md` | Editor com folha de papel, toolbar própria, undo/redo reativo, sheet de nomear e guarda de alterações não salvas | não — parte da verificação é visual e ela edita `Localizable.xcstrings`, também tocado pela parte 4 | 1, 2 | concluída |
-| 4 | `04-realidade-aumentada.md` | RA acessível direto do card, gestos acumulativos corretos, HUD de opacidade/travar/recentrar, ancoragem por toque; localização e flows atualizados | não — exige câmera e validação manual em dispositivo | 1, 2, 3 | pendente |
+| 4 | `04-realidade-aumentada.md` | RA acessível direto do card, gestos acumulativos corretos, HUD de opacidade/travar/recentrar, ancoragem por toque; localização e flows atualizados | não — exige câmera e validação manual em dispositivo | 1, 2, 3 | concluída |
 
 ## Riscos e Mitigações (globais)
 

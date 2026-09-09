@@ -120,7 +120,7 @@ struct PaintView: View {
         }
         .interactiveDismissDisabled(viewModel.hasUnsavedChanges)
         .navigationDestination(isPresented: $showAR) {
-            PaintAR(canvas: canvasState.canvas)
+            ARTraceView(drawing: canvasState.drawing)
         }
     }
 

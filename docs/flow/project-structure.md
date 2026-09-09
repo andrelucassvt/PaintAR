@@ -1,104 +1,96 @@
 ---
 generated_at: 2026-09-09
-source_commit: 7993058
-source_state: clean
+source_commit: 377fd14
+source_state: dirty
 verified_at: 2026-09-09
 status: current
-related_plans: []
+related_plans:
+  - docs/plan/modernizacao-tracear/00-indice.md
 ---
 
 # Estrutura do Projeto: PaintAR (TraceAR)
 
-> **Resumo:** App iOS em SwiftUI onde o usuário desenha com PencilKit, salva os desenhos em Core Data e projeta o traçado em Realidade Aumentada (ARKit + SceneKit) para servir de guia de decalque; desenhos também podem ser exportados e importados como JSON.
+> **Resumo:** App iOS de desenho que cria e persiste traços PencilKit, organiza-os numa galeria e os projeta em Realidade Aumentada como guia de decalque, com importação e exportação em JSON.
 
 ## Stack e Tecnologias
 
 | Elemento | Valor |
 |----------|-------|
 | Linguagem | Swift 5.0 (`SWIFT_VERSION = 5.0`) |
-| Framework | SwiftUI (`App` + `@UIApplicationDelegateAdaptor`), com UIKit via `UIViewRepresentable`/`UIViewControllerRepresentable` |
-| Plataforma | iOS 16.0 (target `PaintAR`); iPhone e iPad (`TARGETED_DEVICE_FAMILY = "1,2"`) |
-| Gerenciadores de pacotes | CocoaPods (`Podfile`, `platform :ios, '16.0'`, sem pods declarados) e SwiftPM (`PaintAR.xcworkspace/xcshareddata/swiftpm/Package.resolved`) |
-| Frameworks Apple usados | SwiftUI, PencilKit, CoreData, ARKit, SceneKit, UIKit, Foundation |
-| Workspace | `PaintAR.xcworkspace` (gerado pelo CocoaPods; abre `PaintAR.xcodeproj` + `Pods`) |
-| Bundle ID | `com.andre.PaintAR` — versão `1.0.5` (build `6`) |
-| Testes | Swift Testing (`import Testing`, `@Test`) em `PaintARTests`; XCTest UI em `PaintARUITests` |
+| Framework | SwiftUI (`App`) com UIKit por `UIViewRepresentable` e `UIViewControllerRepresentable` |
+| Plataforma | iOS 18.0; iPhone e iPad (`TARGETED_DEVICE_FAMILY = "1,2"`) |
+| Estado de apresentação | Observation (`@Observable`, `@State`, `@Bindable`) em Home e Paint; `@State` e controller UIKit na cena de RA |
+| Frameworks Apple | SwiftUI, PencilKit, Core Data, ARKit, SceneKit, UIKit, Foundation |
+| Gerenciadores | CocoaPods (`platform :ios, '18.0'`, sem pods) e SwiftPM (`Package.resolved`) |
+| Workspace | `PaintAR.xcworkspace` — contém o projeto e Pods; é a entrada de build |
+| Testes | Swift Testing em `PaintARTests`; XCTest somente em `PaintARUITests` |
+| Produto | Bundle `com.andre.PaintAR`, versão 2.0.0 (build 6) |
 
 ## Arquitetura
 
-O app é organizado por feature dentro de `PaintAR/src/`, com separação parcial em MVVM. Apenas a feature **home** possui ViewModel (`HomeViewModel`, `ObservableObject` com enum de estado `HomeState`); **paint** e **paintAR** são Views que falam diretamente com a camada de dados ou encapsulam um `UIViewController`. O acesso a dados é feito por *controllers* concretos (`CoreDataController`, `ShareFileController`) — não há protocolo de repositório nem injeção por protocolo; a injeção existente é por valor padrão no `init` (`HomeViewModel(coreDataController: .shared)`).
+O composition root em `PaintAR/PaintARApp.swift` cria `CoreDataPaintRepository` sobre o único `PersistenceController.shared` e o injeta em `HomeView`. A Home usa `HomeViewModel` para buscar, filtrar, excluir, renomear e importar `Paint` por meio do protocolo `PaintRepository`; as Views recebem structs de domínio, não `PaintEntity`.
 
-A navegação é um `NavigationStack` declarado em `HomeView`, com `NavigationLink` para `PaintView` e, de dentro dele, para `PaintAR`. A sincronização de lista após edição é feita por callback: cada destino chama `viewModel.fetchPaints()` no `onDisappear`.
+O editor cria `PaintViewModel` com o mesmo repositório e recebe o `PKCanvasView` encapsulado em `DrawingCanvasView`. O `CanvasState` é a ponte de UI para o estado de undo, redo e desenho atual. A projeção de RA recebe apenas um `PKDrawing`: `ARTraceView` controla o HUD e atualiza o `ARTraceSceneController`, que hospeda o `ARSCNView` e aplica os gestos.
 
 ```
-views/home (HomeView + HomeViewModel + HomeCardPaint)
-        │  NavigationLink
-        ▼
-views/paint (PaintView → DrawingView/PKCanvasView)
-        │  NavigationLink (passa o PKCanvasView)
-        ▼
-views/paintAR (PaintAR → ARViewContainer → ViewController/ARSCNView)
-
-todas as camadas de tela → data (CoreDataController, ShareFileController) → core (Paints.xcdatamodeld)
+PaintARApp
+  └─ HomeView → HomeViewModel → PaintRepository
+        │                         └─ CoreDataPaintRepository → PersistenceController → Paints.xcdatamodeld
+        ├─ PaintCard → ARTraceView → ARTraceSceneController → ARKit / SceneKit
+        └─ PaintView → PaintViewModel → PaintRepository
+              └─ DrawingCanvasView / CanvasState → PencilKit
 ```
 
 ### Regras de dependência
 
-- `data/` importa apenas `CoreData`/`UIKit`, nunca SwiftUI.
-- `domain/model/PaintModel.swift` importa apenas `Foundation` + `CoreData`.
-- `HomeViewModel` importa apenas `Foundation` + `CoreData` (sem SwiftUI).
-- As Views são as únicas que importam SwiftUI, PencilKit e ARKit.
+- Views importam SwiftUI e os frameworks visuais específicos; ViewModels importam Foundation e Observation, sem SwiftUI.
+- `domain/model/` e `domain/repository/` expressam o contrato de dados; a implementação Core Data fica em `data/`.
+- `PersistenceController` é a única origem de `NSPersistentContainer`; apenas `CoreDataPaintRepository` cria contextos de background.
+- A RA não acessa persistência nem ViewModels: recebe um snapshot `PKDrawing` do editor ou do card.
 
 ## Features
 
 | Feature | Caminho principal | Descrição resumida |
 |---------|------------------|-------------------|
-| Home (lista de desenhos) | `PaintAR/src/views/home/` | Lista os desenhos salvos ordenados por data, com estados loading/loaded/error, pull-to-refresh, empty state e entrada para criar um novo desenho. |
-| Card do desenho (ações do item) | `PaintAR/src/views/home/components/HomeCardPaint.swift` | Miniatura do traçado em `PKCanvasView` somente leitura, com menu de exportar (`ShareLink`), editar, renomear e excluir. |
-| Import de desenho (JSON) | `HomeView.importSheetView` + `HomeViewModel.addImportFile` | Sheet com `fileImporter` (`.json`) que decodifica `PaintModelJson`, valida data e Base64 e grava um novo `PaintEntity`. |
-| Export/compartilhamento | `PaintAR/src/data/ShareFileController.swift` | Serializa o `PaintEntity` em JSON (com `drawing` em Base64) num arquivo temporário e devolve a URL para `ShareLink`/`UIActivityViewController`. |
-| Paint (canvas de desenho) | `PaintAR/src/views/paint/PaintView.swift` | Canvas PencilKit com `PKToolPicker`, undo/redo, borracha, salvar (novo) ou atualizar (existente) e acesso ao modo AR. |
-| PaintAR (projeção em RA) | `PaintAR/src/views/paintAR/PaintAR.swift` | Renderiza o desenho como textura de um `SCNPlane` sobre `ARSCNView`, com gestos de pinça (escala), arrasto (posição) e rotação. |
-| Persistência Core Data | `PaintAR/src/data/CoreDataController.swift` + `PaintAR/src/core/Paints.xcdatamodeld` | CRUD de `PaintEntity` (id, name, date, drawing) sobre `NSPersistentContainer` chamado `Paints`. |
+| Home | `src/views/home/` | Galeria em grid com busca, importação, ações de card e navegação para criar ou editar. |
+| Card do desenho | `src/views/home/components/PaintCard.swift` | Mostra miniatura cacheada e oferece RA direta, editar, renomear, exportar e excluir. |
+| Paint | `src/views/paint/` | Editor PencilKit com folha de papel, toolbar própria, nome em sheet, confirmação de limpeza e guarda de alterações não salvas. |
+| PaintAR | `src/views/paintAR/` | Projeta um `PKDrawing` como plano SceneKit, detecta planos, permite raycast, opacidade, lock e recenter. |
+| Importação e exportação | `ImportSheet`, `PaintFileService` | Decodifica e exporta o formato JSON estável com data e desenho em Base64. |
+| Persistência | `CoreDataPaintRepository`, `PersistenceController` | Executa CRUD e importação em contextos Core Data de background. |
 
 ## Camadas / Módulos Compartilhados
 
 | Tipo | Caminho | Responsabilidade |
 |------|---------|-----------------|
-| Camada de dados | `PaintAR/src/data/` | `CoreDataController` (CRUD + `saveContext`) e `ShareFileController` (export JSON e share sheet). |
-| Modelo de domínio | `PaintAR/src/domain/model/PaintModel.swift` | `extension PaintEntity` com `convenience init` e struct `PaintModelJson: Codable` para import/export. |
-| Core / recursos | `PaintAR/src/core/` | Modelo Core Data `Paints.xcdatamodeld` e catálogo de strings `Localizable.xcstrings`. |
-| Componentes de UI | `PaintAR/src/views/home/components/` | Subviews da home (`HomeCardPaint`, `DrawingViewContainer`). |
-| Assets | `PaintAR/Assets.xcassets` | `AppIcon` e `AccentColor`. |
+| Dados | `PaintAR/src/data/` | `PersistenceController`, `CoreDataPaintRepository` e `PaintFileService`. |
+| Domínio | `PaintAR/src/domain/model/`, `PaintAR/src/domain/repository/` | `Paint`, DTO de troca, erros tipados e o protocolo de persistência. |
+| Design e recursos | `PaintAR/src/core/design/`, `PaintAR/src/core/` | Tema, animações, cache de miniaturas, catálogo de strings e modelo Core Data. |
+| Componentes de UI | `views/*/components/` | Componentes de Home e Paint com valores, bindings e callbacks estreitos. |
+| Testes | `PaintARTests/` | Repositório in-memory, mapeamento, formato de troca, Home, Paint e transformações da RA. |
 
 ## Configuração
 
 | Componente | Arquivo | Responsabilidade |
-|-----------|---------|-----------------|
-| Entry point / Scene | `PaintAR/AppDelegate.swift` | `@main struct PaintARApp: App` — cria `CoreDataController()`, injeta `\.managedObjectContext` e abre `HomeView()` num `WindowGroup`; `AppDelegate` via `@UIApplicationDelegateAdaptor` (sem lógica). |
-| Persistência | `PaintAR/src/data/CoreDataController.swift` | `NSPersistentContainer(name: "Paints")` com `fatalError` caso a store não carregue; singleton `CoreDataController.shared`. |
-| Modelo de dados | `PaintAR/src/core/Paints.xcdatamodeld/Paints.xcdatamodel/contents` | Entidade `PaintEntity` (codegen `class`): `id: UUID?`, `name: String?`, `date: Date?`, `drawing: Binary?` — todos opcionais. |
-| Localização | `PaintAR/src/core/Localizable.xcstrings` | 29 chaves em `pt-BR` (origem) e `en`, consumidas via `LocalizedStringKey`. |
-| Permissões | `PaintAR.xcodeproj/project.pbxproj` (`INFOPLIST_KEY_NSCameraUsageDescription`) | Texto de uso da câmera para a experiência de RA. |
-| Info.plist adicional | `PaintAR/Info.plist` | `GADApplicationIdentifier` (AdMob) e lista de `SKAdNetworkItems`. |
-| Dependências CocoaPods | `Podfile` / `Podfile.lock` | Estrutura de targets pronta, sem nenhum pod declarado (CocoaPods 1.16.2). |
-| Instruções de agentes | `AGENTS.md`, `CLAUDE.md`, `.claude/skills/`, `.github/skills/`, `.agents/skills/` | Skills e instruções sincronizadas por `sync-instructions.sh`. |
+|------------|---------|-----------------|
+| Entry point | `PaintAR/PaintARApp.swift` | Monta o repositório de produção e abre `HomeView`. |
+| Persistência | `PaintAR/src/data/PersistenceController.swift` | Carrega `Paints`, expõe o contexto de View e contextos de background; registra falha de carregamento em `loadError`. |
+| Dados | `PaintAR/src/core/Paints.xcdatamodeld/` | Define `PaintEntity` com `id`, `name`, `date` e `drawing`, todos opcionais no schema. |
+| Localização | `PaintAR/src/core/Localizable.xcstrings` | Catálogo pt-BR/en para toda a interface. |
+| Permissões | `PaintAR.xcodeproj/project.pbxproj` | Declara o texto de uso da câmera para RA. |
+| Dependências | `Podfile`, `Package.resolved` | Mantêm a configuração CocoaPods e o pacote SwiftPM resolvido. |
 
 ## Dependências Externas Principais
 
 | Pacote | Versão | Uso no projeto |
 |--------|--------|---------------|
-| `evgenyneu/keychain-swift` | 24.0.0 (SwiftPM, resolvido no workspace) | Resolvido em `Package.resolved`, mas sem nenhum `import KeychainSwift` no código atual. |
-| CocoaPods | 1.16.2 (`Podfile.lock`) | Workspace configurado, sem pods declarados. |
+| `evgenyneu/keychain-swift` | 24.0.0 | Resolvido por SwiftPM, mas não importado pelo app. |
+| CocoaPods | 1.16.2 | Workspace configurado sem pods declarados. |
 
 ## Observações
 
-- **`AGENTS.md`/`CLAUDE.md` estavam desatualizados:** descreviam este repositório como "repositório de templates de instruções, não um app executável" e citavam arquivos inexistentes (`mvvm-architecture-instructions.md`, `skills-lock.json`, skills `model`/`view`/`repository`/`service`/`navigation`/`performance`/`liquid-glass`). O repositório é o app PaintAR com as skills sincronizadas dentro dele. O `AGENTS.md` foi reescrito a partir do código real nesta inicialização.
-- **Deployment target divergente:** o nível de projeto usa `IPHONEOS_DEPLOYMENT_TARGET = 18.2` (e os targets de teste também), enquanto o target do app `PaintAR` usa `16.0` e o `Podfile` declara `platform :ios, '16.0'`. O mínimo efetivo do app é iOS 16.
-- **APIs iOS 16+ em uso:** `NavigationStack`, `navigationDestination`, `ShareLink`/`SharePreview` — incompatíveis com a regra "iOS 15 / `NavigationView`" que constava nas instruções antigas.
-- **Force unwraps em atributos opcionais:** `paintEntity.drawing!`, `paintEntity.name!`, `paintEntity.date!`, `paintEntity.id!` (em `HomeCardPaint`, `PaintView` e `ShareFileController`) sobre atributos declarados opcionais no modelo Core Data — risco de crash para entidades incompletas ou importadas.
-- **Instâncias paralelas de `CoreDataController`:** `PaintARApp`, `HomeCardPaint` e `PaintView` criam `CoreDataController()` próprio, enquanto `HomeViewModel` usa `CoreDataController.shared` — cada instância cria um `NSPersistentContainer` separado, então as escritas de `PaintView`/`HomeCardPaint` só aparecem na lista após o `fetchPaints()` do `onDisappear`.
-- **`HomeViewModel` não é `@MainActor`:** usa `DispatchQueue.main.asyncAfter(deadline: .now() + 0.5)` como atraso artificial em `fetchPaints`, `deletePaint` e `handleError`.
-- **AdMob configurado mas não integrado:** `GADApplicationIdentifier` e `SKAdNetworkItems` no `Info.plist` sem SDK do Google Mobile Ads no `Podfile` nem no `Package.resolved`.
-- **Testes vazios:** `PaintARTests.swift` contém apenas um `@Test func example()` sem asserções; `PaintARUITests` é o scaffold padrão do Xcode.
-- **Nome do produto vs. UI:** o projeto se chama `PaintAR`, mas o título exibido na home é `"TraceAR"`.
+- `PaintEntity` permanece com atributos opcionais por compatibilidade do schema; `Paint.init?(entity:)` descarta registros incompletos em vez de usar force unwrap.
+- A configuração de AdMob e SKAdNetwork continua no `Info.plist`, mas não há SDK do Google Mobile Ads configurado.
+- `keychain-swift` continua resolvido sem uso no código.
+- O bundle e o nome técnico são `PaintAR`, enquanto a interface apresenta o produto como `TraceAR`.
+- A validação da câmera, do raycast e dos gestos em RA exige aparelho físico compatível; os limites e o acúmulo de transformações têm cobertura unitária em `ARTraceTransformTests`.

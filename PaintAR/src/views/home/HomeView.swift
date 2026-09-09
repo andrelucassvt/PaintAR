@@ -92,13 +92,13 @@ struct HomeView: View {
                 case .error(let message):
                     Alert(
                         title: Text(message),
-                        dismissButton: .default(Text(LocalizedStringKey("OK")))
+                        dismissButton: .default(Text(LocalizedStringKey("ok")))
                     )
                 case .success:
                     Alert(
-                        title: Text(LocalizedStringKey("sucess")),
+                        title: Text(LocalizedStringKey("success")),
                         message: Text(LocalizedStringKey("drawingAdd")),
-                        dismissButton: .default(Text(LocalizedStringKey("OK")))
+                        dismissButton: .default(Text(LocalizedStringKey("ok")))
                     )
                 }
             }

@@ -1,671 +1,305 @@
 {
   "sourceLanguage" : "pt-BR",
   "strings" : {
-    "" : {
-
-    },
-    "add" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Add drawing"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Adicionar desenho"
-          }
-        }
-      }
-    },
     "addFirst" : {
       "extractionState" : "manual",
       "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Add your first drawing"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Adicione seu primeiro desenho"
-          }
-        }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Add your first drawing" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Adicione seu primeiro desenho" } }
       }
     },
-    "cancel" : {
+    "arUnavailable" : {
       "extractionState" : "manual",
       "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cancel"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cancelar"
-          }
-        }
-      }
-    },
-    "delete" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Delete"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Deletar"
-          }
-        }
-      }
-    },
-    "deleteDrawing" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Delete your drawing"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Deletar seu desenho"
-          }
-        }
-      }
-    },
-    "drawingAdd" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Drawing added"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Desenho adicionado"
-          }
-        }
-      }
-    },
-    "draw" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Draw"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Desenhar"
-          }
-        }
-      }
-    },
-    "edit" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Edit"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Editar"
-          }
-        }
-      }
-    },
-    "Error" : {
-
-    },
-    "Error: %@" : {
-
-    },
-    "export" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Export"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Exportar"
-          }
-        }
-      }
-    },
-    "import" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Importar"
-          }
-        }
-      }
-    },
-    "importDrawing" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import drawing"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Importar desenho"
-          }
-        }
-      }
-    },
-    "importDrawingUsers" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import drawings from other users"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Importe desenhos de outros usuários"
-          }
-        }
-      }
-    },
-    "invalidJson" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Invalid Json"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Json inválido"
-          }
-        }
-      }
-    },
-    "Key" : {
-      "extractionState" : "manual"
-    },
-    "nameApp" : {
-      "extractionState" : "manual"
-    },
-    "nameDrawing" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Name drawing"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nome do desenho"
-          }
-        }
-      }
-    },
-    "noDrawing" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No drawings yet"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sem desenhos ainda"
-          }
-        }
-      }
-    },
-    "OK" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "OK"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "OK"
-          }
-        }
-      }
-    },
-    "Paint" : {
-
-    },
-    "rename" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Rename"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Renomear"
-          }
-        }
-      }
-    },
-    "retry" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Try Again"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tentar novamente"
-          }
-        }
-      }
-    },
-    "save" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Save"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Salvar"
-          }
-        }
-      }
-    },
-    "saveDrawing" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The app will save your drawing"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "O app vai salvar seu desenho"
-          }
-        }
-      }
-    },
-    "sucess" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Sucess"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sucesso"
-          }
-        }
-      }
-    },
-    "TraceAR" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "TraceAR"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "TraceAR"
-          }
-        }
-      }
-    },
-    "Try Again" : {
-
-    },
-    "update" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Update"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Atualizar"
-          }
-        }
-      }
-    },
-    "viewInAR" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "View in AR"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ver em RA"
-          }
-        }
-      }
-    },
-    "yourSure" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Are you sure?"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tem certeza ?"
-          }
-        }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "AR unavailable on this device" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "RA indisponível neste aparelho" } }
       }
     },
     "back" : {
       "extractionState" : "manual",
       "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Back"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Voltar"
-          }
-        }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Back" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Voltar" } }
+      }
+    },
+    "cancel" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Cancel" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Cancelar" } }
       }
     },
     "clear" : {
       "extractionState" : "manual",
       "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Clear"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Limpar"
-          }
-        }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Clear" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Limpar" } }
       }
     },
     "clearDrawing" : {
       "extractionState" : "manual",
       "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Clear drawing?"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Limpar desenho?"
-          }
-        }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Clear drawing?" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Limpar desenho?" } }
       }
     },
     "clearDrawingMessage" : {
       "extractionState" : "manual",
       "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "All strokes will be removed."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Todos os traços serão removidos."
-          }
-        }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "All strokes will be removed." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Todos os traços serão removidos." } }
+      }
+    },
+    "close" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Close" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Fechar" } }
       }
     },
     "continueEditing" : {
       "extractionState" : "manual",
       "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Keep editing"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Continuar editando"
-          }
-        }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Keep editing" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Continuar editando" } }
+      }
+    },
+    "delete" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Delete" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Deletar" } }
+      }
+    },
+    "deleteDrawing" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Delete your drawing" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Deletar seu desenho" } }
       }
     },
     "discard" : {
       "extractionState" : "manual",
       "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Discard"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Descartar"
-          }
-        }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Discard" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Descartar" } }
       }
     },
     "discardChanges" : {
       "extractionState" : "manual",
       "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Discard changes?"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Descartar alterações?"
-          }
-        }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Discard changes?" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Descartar alterações?" } }
+      }
+    },
+    "draw" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Draw" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Desenhar" } }
+      }
+    },
+    "drawingAdd" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Drawing added" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Desenho adicionado" } }
+      }
+    },
+    "edit" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Edit" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Editar" } }
       }
     },
     "errorSaving" : {
       "extractionState" : "manual",
       "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unable to save the drawing. Try again."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Não foi possível salvar o desenho. Tente novamente."
-          }
-        }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Unable to save the drawing. Try again." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Não foi possível salvar o desenho. Tente novamente." } }
+      }
+    },
+    "export" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Export" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Exportar" } }
+      }
+    },
+    "hideControls" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Hide controls" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Ocultar controles" } }
+      }
+    },
+    "import" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Import" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Importar" } }
+      }
+    },
+    "importDrawing" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Import drawing" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Importar desenho" } }
+      }
+    },
+    "importDrawingUsers" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Import drawings from other users" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Importe desenhos de outros usuários" } }
       }
     },
     "invalidName" : {
       "extractionState" : "manual",
       "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Enter a valid name."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Informe um nome válido."
-          }
-        }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Enter a valid name." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Informe um nome válido." } }
+      }
+    },
+    "lock" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Lock" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Travar" } }
+      }
+    },
+    "lookingForSurface" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Looking for a surface" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Procurando superfície" } }
+      }
+    },
+    "nameDrawing" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Name drawing" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Nome do desenho" } }
+      }
+    },
+    "noDrawing" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No drawings yet" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Sem desenhos ainda" } }
       }
     },
     "ok" : {
       "extractionState" : "manual",
       "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "OK"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "OK"
-          }
-        }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "OK" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "OK" } }
+      }
+    },
+    "opacity" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Opacity" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Opacidade" } }
+      }
+    },
+    "recenter" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Recenter" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Recentralizar" } }
       }
     },
     "redo" : {
       "extractionState" : "manual",
       "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Redo"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Refazer"
-          }
-        }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Redo" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Refazer" } }
+      }
+    },
+    "rename" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Rename" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Renomear" } }
+      }
+    },
+    "retry" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Try Again" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Tentar novamente" } }
+      }
+    },
+    "save" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Save" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Salvar" } }
+      }
+    },
+    "saveDrawing" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "The app will save your drawing" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "O app vai salvar seu desenho" } }
+      }
+    },
+    "showControls" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Show controls" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Mostrar controles" } }
+      }
+    },
+    "success" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Success" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Sucesso" } }
+      }
+    },
+    "tapToPlace" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Tap to place" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Toque para posicionar" } }
       }
     },
     "tools" : {
       "extractionState" : "manual",
       "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tools"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ferramentas"
-          }
-        }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Tools" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Ferramentas" } }
+      }
+    },
+    "TraceAR" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "TraceAR" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "TraceAR" } }
       }
     },
     "undo" : {
       "extractionState" : "manual",
       "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Undo"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Desfazer"
-          }
-        }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Undo" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Desfazer" } }
+      }
+    },
+    "unlock" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Unlock" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Destravar" } }
+      }
+    },
+    "viewInAR" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "View in AR" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Ver em RA" } }
       }
     }
   },

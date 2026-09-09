@@ -20,10 +20,6 @@ final class CanvasState {
         canvasView?.drawing ?? PKDrawing()
     }
 
-    var canvas: PKCanvasView {
-        canvasView ?? PKCanvasView()
-    }
-
     func undo() {
         canvasView?.undoManager?.undo()
         refresh()

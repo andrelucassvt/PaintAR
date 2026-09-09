@@ -1,3 +1,4 @@
+import PencilKit
 import SwiftUI
 import UIKit
 
@@ -15,14 +16,18 @@ struct PaintCard: View {
     @State private var shareURL: URL?
     @State private var showDeleteAlert = false
     @State private var showRenameAlert = false
+    @State private var showAR = false
     @State private var newName = ""
 
     var body: some View {
         transitionSource
             .contextMenu {
-                Button {} label: {
+                Button {
+                    showAR = true
+                } label: {
                     Label(LocalizedStringKey("viewInAR"), systemImage: "arkit")
                 }
+                .disabled(arDrawing == nil)
 
                 NavigationLink(value: paint) {
                     Label(LocalizedStringKey("edit"), systemImage: "pencil")
@@ -76,6 +81,9 @@ struct PaintCard: View {
                     }
                 }
             }
+            .fullScreenCover(isPresented: $showAR) {
+                ARTraceView(drawing: arDrawing ?? PKDrawing())
+            }
     }
 
     @ViewBuilder
@@ -126,6 +134,10 @@ struct PaintCard: View {
             x: Theme.CardShadow.paper.offset.width,
             y: Theme.CardShadow.paper.offset.height
         )
+    }
+
+    private var arDrawing: PKDrawing? {
+        try? PKDrawing(data: paint.drawingData)
     }
 
     @ViewBuilder
