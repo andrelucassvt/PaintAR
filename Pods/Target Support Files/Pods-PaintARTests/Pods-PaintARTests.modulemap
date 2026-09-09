@@ -1,0 +1,6 @@
+framework module Pods_PaintARTests {
+  umbrella header "Pods-PaintARTests-umbrella.h"
+
+  export *
+  module * { export * }
+}

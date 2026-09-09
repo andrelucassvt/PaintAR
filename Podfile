@@ -6,7 +6,6 @@ target 'PaintAR' do
   use_frameworks!
 
   # Pods for PaintAR
-  pod 'Google-Mobile-Ads-SDK'
 
   target 'PaintARTests' do
     inherit! :search_paths

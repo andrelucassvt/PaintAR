@@ -76,41 +76,11 @@ struct HomeView: View {
                                       }
 
                        
-                                    ForEach(paints.indices, id: \.self) { index in
-                                        if index == 1 {
-                                            BannerAdView(adUnitID: "ca-app-pub-3652623512305285/5727975953")
-                                                .frame(width: 320, height: 50)
-                                                .padding(.bottom, 5)
-                                        }
-                                        
-                                        if index == 2 {
-                                            BannerAdView(adUnitID: "ca-app-pub-3652623512305285/1088817392")
-                                                .frame(width: 320, height: 50)
-                                                .padding(.bottom, 5)
-                                        }
-
-                                        
-                                        NavigationLink {
-                                            PaintView()
-                                                .onDisappear {
-                                                    viewModel.fetchPaints()
-                                                }
-                                        } label: {
-                                            HomeCardPaint(
-                                                paintEntity: paints[index],
-                                                onDelete: {
-                                                    withAnimation(.easeInOut) {
-                                                        viewModel.deletePaint(paints[index])
-                                                    }
-                                                },
-                                                onRefresh: {
-                                                    viewModel.fetchPaints()
-                                                }
-                                            )
-                                        }
+                                    ForEach(paints, id: \.id) { paint in
+                                        paintItemView(paint: paint)
                                     }
                                 }
-                                .padding(.bottom, 80) // espaço para o banner
+                                .padding(.bottom, 20)
                             }
                             .refreshable {
                                 withAnimation {
@@ -154,6 +124,29 @@ struct HomeView: View {
         }
         .ignoresSafeArea(.keyboard) // evita conflito com o teclado
     }
+    
+    @ViewBuilder
+    private func paintItemView(paint: PaintEntity) -> some View {
+        NavigationLink {
+            PaintView(paintEntity: paint)
+                .onDisappear {
+                    viewModel.fetchPaints()
+                }
+        } label: {
+            HomeCardPaint(
+                paintEntity: paint,
+                onDelete: {
+                    withAnimation(.easeInOut) {
+                        viewModel.deletePaint(paint)
+                    }
+                },
+                onRefresh: {
+                    viewModel.fetchPaints()
+                }
+            )
+        }
+    }
+
     
     private var importSheetView: some View {
         VStack {

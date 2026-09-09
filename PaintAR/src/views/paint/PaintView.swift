@@ -15,27 +15,27 @@ struct DrawingView: UIViewRepresentable {
     public let toolPicker: PKToolPicker
     
     func makeUIView(context: Context) -> PKCanvasView {
-        // Allow finger drawing
         canvasView.drawingPolicy = .anyInput
+        canvasView.backgroundColor = .white
+        
+        // Performance optimizations
+        canvasView.isOpaque = true
+        canvasView.minimumZoomScale = 1
+        canvasView.maximumZoomScale = 3.0
         
         toolPicker.setVisible(toolPickerShows, forFirstResponder: canvasView)
         toolPicker.addObserver(canvasView)
         
-
         if toolPickerShows {
             canvasView.becomeFirstResponder()
         }
-        
-
-        canvasView.minimumZoomScale = 1
-        canvasView.maximumZoomScale = 3.0
      
         return canvasView
     }
     
     func updateUIView(_ canvasView: PKCanvasView, context: Context) {
         toolPicker.setVisible(toolPickerShows, forFirstResponder: canvasView)
-        toolPicker.addObserver(canvasView)
+        
         if toolPickerShows {
             canvasView.becomeFirstResponder()
         } else {
@@ -52,30 +52,6 @@ struct DrawingView: UIViewRepresentable {
         
         init(_ parent: DrawingView) {
             self.parent = parent
-        }
-        
-        @objc func handlePinch(_ gesture: UIPinchGestureRecognizer) {
-            guard let canvasView = gesture.view as? PKCanvasView else { return }
-            
-            if gesture.state == .began || gesture.state == .changed {
-                let scale = gesture.scale
-                let currentScale = canvasView.zoomScale
-                let newScale = max(canvasView.minimumZoomScale, min(canvasView.maximumZoomScale, currentScale * scale))
-                
-                canvasView.zoomScale = newScale
-                gesture.scale = 1.0
-                
-                if newScale < currentScale {
-                    expandCanvas(canvasView)
-                }
-            }
-        }
-        
-        private func expandCanvas(_ canvasView: PKCanvasView) {
-            let currentSize = canvasView.contentSize
-            let newSize = CGSize(width: currentSize.width * 1.2, height: currentSize.height * 1.2)
-            
-            canvasView.contentSize = newSize
         }
     }
 

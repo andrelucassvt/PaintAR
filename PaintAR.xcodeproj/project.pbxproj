@@ -8,7 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		247710DA2DB54339008E0DB3 /* KeychainSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 247710D92DB54339008E0DB3 /* KeychainSwift */; };
-		24F6E1C22DCEC9DC00D3B632 /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = 24F6E1C12DCEC9DC00D3B632 /* GoogleMobileAds */; };
+		78C8BCF5A62EDA4C6846BC21 /* Pods_PaintAR_PaintARUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7DE984B4DC9E0FF045211CED /* Pods_PaintAR_PaintARUITests.framework */; };
+		7A2546E1C8A25D5F16AC294A /* Pods_PaintAR.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 001CEC7F6BBBA92E467A4DE9 /* Pods_PaintAR.framework */; };
+		7CE1C5D2EC8CD5116977545E /* Pods_PaintARTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 843210ED8DCB3CCE009A9743 /* Pods_PaintARTests.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -29,9 +31,18 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		001CEC7F6BBBA92E467A4DE9 /* Pods_PaintAR.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PaintAR.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		2459CA3E2D708AE700D5F562 /* PaintAR.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PaintAR.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2459CA4E2D708AE700D5F562 /* PaintARTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PaintARTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2459CA582D708AE700D5F562 /* PaintARUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PaintARUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		33FE5AD858EF939BE16F227B /* Pods-PaintAR.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PaintAR.debug.xcconfig"; path = "Target Support Files/Pods-PaintAR/Pods-PaintAR.debug.xcconfig"; sourceTree = "<group>"; };
+		7DE984B4DC9E0FF045211CED /* Pods_PaintAR_PaintARUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PaintAR_PaintARUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		843210ED8DCB3CCE009A9743 /* Pods_PaintARTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PaintARTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		91B238DEC4E4696B457260AD /* Pods-PaintAR-PaintARUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PaintAR-PaintARUITests.debug.xcconfig"; path = "Target Support Files/Pods-PaintAR-PaintARUITests/Pods-PaintAR-PaintARUITests.debug.xcconfig"; sourceTree = "<group>"; };
+		9A876F61064BEC8F49BAF6A5 /* Pods-PaintAR-PaintARUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PaintAR-PaintARUITests.release.xcconfig"; path = "Target Support Files/Pods-PaintAR-PaintARUITests/Pods-PaintAR-PaintARUITests.release.xcconfig"; sourceTree = "<group>"; };
+		DBC634F74E836E35B8ED9A29 /* Pods-PaintARTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PaintARTests.debug.xcconfig"; path = "Target Support Files/Pods-PaintARTests/Pods-PaintARTests.debug.xcconfig"; sourceTree = "<group>"; };
+		DF07D65A5FA02B67C55AA3C6 /* Pods-PaintAR.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PaintAR.release.xcconfig"; path = "Target Support Files/Pods-PaintAR/Pods-PaintAR.release.xcconfig"; sourceTree = "<group>"; };
+		FFE7DF78B765712727D3C10C /* Pods-PaintARTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PaintARTests.release.xcconfig"; path = "Target Support Files/Pods-PaintARTests/Pods-PaintARTests.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -55,11 +66,15 @@
 		};
 		2459CA512D708AE700D5F562 /* PaintARTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = PaintARTests;
 			sourceTree = "<group>";
 		};
 		2459CA5B2D708AE700D5F562 /* PaintARUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = PaintARUITests;
 			sourceTree = "<group>";
 		};
@@ -70,8 +85,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				24F6E1C22DCEC9DC00D3B632 /* GoogleMobileAds in Frameworks */,
 				247710DA2DB54339008E0DB3 /* KeychainSwift in Frameworks */,
+				7A2546E1C8A25D5F16AC294A /* Pods_PaintAR.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -79,6 +94,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7CE1C5D2EC8CD5116977545E /* Pods_PaintARTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -86,6 +102,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				78C8BCF5A62EDA4C6846BC21 /* Pods_PaintAR_PaintARUITests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -100,6 +117,7 @@
 				2459CA5B2D708AE700D5F562 /* PaintARUITests */,
 				2459CA3F2D708AE700D5F562 /* Products */,
 				CA5AC59C8DBC054728AD02F1 /* Pods */,
+				B7F947B7489D30B036A38CEB /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -113,9 +131,25 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		B7F947B7489D30B036A38CEB /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				001CEC7F6BBBA92E467A4DE9 /* Pods_PaintAR.framework */,
+				7DE984B4DC9E0FF045211CED /* Pods_PaintAR_PaintARUITests.framework */,
+				843210ED8DCB3CCE009A9743 /* Pods_PaintARTests.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		CA5AC59C8DBC054728AD02F1 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
+				33FE5AD858EF939BE16F227B /* Pods-PaintAR.debug.xcconfig */,
+				DF07D65A5FA02B67C55AA3C6 /* Pods-PaintAR.release.xcconfig */,
+				91B238DEC4E4696B457260AD /* Pods-PaintAR-PaintARUITests.debug.xcconfig */,
+				9A876F61064BEC8F49BAF6A5 /* Pods-PaintAR-PaintARUITests.release.xcconfig */,
+				DBC634F74E836E35B8ED9A29 /* Pods-PaintARTests.debug.xcconfig */,
+				FFE7DF78B765712727D3C10C /* Pods-PaintARTests.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -127,6 +161,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 2459CA622D708AE700D5F562 /* Build configuration list for PBXNativeTarget "PaintAR" */;
 			buildPhases = (
+				13942876CCC61C4C68C99175 /* [CP] Check Pods Manifest.lock */,
 				2459CA3A2D708AE700D5F562 /* Sources */,
 				2459CA3B2D708AE700D5F562 /* Frameworks */,
 				2459CA3C2D708AE700D5F562 /* Resources */,
@@ -141,7 +176,6 @@
 			name = PaintAR;
 			packageProductDependencies = (
 				247710D92DB54339008E0DB3 /* KeychainSwift */,
-				24F6E1C12DCEC9DC00D3B632 /* GoogleMobileAds */,
 			);
 			productName = PaintAR;
 			productReference = 2459CA3E2D708AE700D5F562 /* PaintAR.app */;
@@ -151,6 +185,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 2459CA652D708AE700D5F562 /* Build configuration list for PBXNativeTarget "PaintARTests" */;
 			buildPhases = (
+				9714DCDB9355DE7E93A855FE /* [CP] Check Pods Manifest.lock */,
 				2459CA4A2D708AE700D5F562 /* Sources */,
 				2459CA4B2D708AE700D5F562 /* Frameworks */,
 				2459CA4C2D708AE700D5F562 /* Resources */,
@@ -172,6 +207,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 2459CA682D708AE700D5F562 /* Build configuration list for PBXNativeTarget "PaintARUITests" */;
 			buildPhases = (
+				6177064522C0FC608F35A9AE /* [CP] Check Pods Manifest.lock */,
 				2459CA542D708AE700D5F562 /* Sources */,
 				2459CA552D708AE700D5F562 /* Frameworks */,
 				2459CA562D708AE700D5F562 /* Resources */,
@@ -224,7 +260,6 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				247710D82DB53B21008E0DB3 /* XCRemoteSwiftPackageReference "keychain-swift" */,
-				24F6E15A2DCEC92D00D3B632 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 2459CA3F2D708AE700D5F562 /* Products */;
@@ -261,6 +296,75 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		13942876CCC61C4C68C99175 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-PaintAR-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		6177064522C0FC608F35A9AE /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-PaintAR-PaintARUITests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		9714DCDB9355DE7E93A855FE /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-PaintARTests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		2459CA3A2D708AE700D5F562 /* Sources */ = {
@@ -427,6 +531,7 @@
 		};
 		2459CA632D708AE700D5F562 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 33FE5AD858EF939BE16F227B /* Pods-PaintAR.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -468,6 +573,7 @@
 		};
 		2459CA642D708AE700D5F562 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = DF07D65A5FA02B67C55AA3C6 /* Pods-PaintAR.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -509,6 +615,7 @@
 		};
 		2459CA662D708AE700D5F562 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = DBC634F74E836E35B8ED9A29 /* Pods-PaintARTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
@@ -527,6 +634,7 @@
 		};
 		2459CA672D708AE700D5F562 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = FFE7DF78B765712727D3C10C /* Pods-PaintARTests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
@@ -545,6 +653,7 @@
 		};
 		2459CA692D708AE700D5F562 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 91B238DEC4E4696B457260AD /* Pods-PaintAR-PaintARUITests.debug.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -561,6 +670,7 @@
 		};
 		2459CA6A2D708AE700D5F562 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 9A876F61064BEC8F49BAF6A5 /* Pods-PaintAR-PaintARUITests.release.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -625,14 +735,6 @@
 				minimumVersion = 24.0.0;
 			};
 		};
-		24F6E15A2DCEC92D00D3B632 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/googleads/swift-package-manager-google-mobile-ads.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 12.4.0;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -640,11 +742,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 247710D82DB53B21008E0DB3 /* XCRemoteSwiftPackageReference "keychain-swift" */;
 			productName = KeychainSwift;
-		};
-		24F6E1C12DCEC9DC00D3B632 /* GoogleMobileAds */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 24F6E15A2DCEC92D00D3B632 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */;
-			productName = GoogleMobileAds;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

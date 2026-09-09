@@ -18,7 +18,7 @@ struct ARViewContainer: UIViewControllerRepresentable {
     let canvas: PKCanvasView
     
     func makeUIViewController(context: Context) -> ViewController {
-        return ViewController(canvas: canvas) // Passe o canvas para o ViewController
+        return ViewController(canvas: canvas)
     }
     
     func updateUIViewController(_ uiViewController: ViewController, context: Context) {}
@@ -31,6 +31,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     var selectedNode: SCNNode?
     var canvasView: PKCanvasView
     var planeNode: SCNNode?
+    private var textureCache: UIImage?
     
     init(canvas: PKCanvasView) {
         self.canvasView = canvas
@@ -50,15 +51,22 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         sceneView.scene = SCNScene()
         sceneView.autoenablesDefaultLighting = true
         
+        // Performance optimizations
+        sceneView.antialiasingMode = .multisampling2X
+        sceneView.preferredFramesPerSecond = 60
+        
         addCanvasPlane()
         addPinchGesture()
         addPanGesture()
+        addRotationGesture()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         let configuration = ARWorldTrackingConfiguration()
-        sceneView.session.run(configuration)
+        configuration.planeDetection = []
+        configuration.isLightEstimationEnabled = false
+        sceneView.session.run(configuration, options: [.resetTracking, .removeExistingAnchors])
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -67,29 +75,30 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     }
     
     func addCanvasPlane() {
-        // Obtém as dimensões do desenho
         let drawingBounds = canvasView.bounds
         let drawingWidth = drawingBounds.width
         let drawingHeight = drawingBounds.height
         
-        // Mantém a proporção no AR
         let aspectRatio = drawingWidth / drawingHeight
-        let arWidth: CGFloat = 0.3  // Define um tamanho base
-        let arHeight: CGFloat = arWidth / aspectRatio  // Calcula altura proporcional
+        let arWidth: CGFloat = 0.3
+        let arHeight: CGFloat = arWidth / aspectRatio
         
         let plane = SCNPlane(width: arWidth, height: arHeight)
         let material = SCNMaterial()
         
-        // Gera a textura com o tamanho correto
-        let image = canvasView.drawing.image(from: drawingBounds, scale: 1.0)
-        material.diffuse.contents = image
+        // Cache texture generation
+        if textureCache == nil {
+            textureCache = canvasView.drawing.image(from: drawingBounds, scale: 1.0)
+        }
+        material.diffuse.contents = textureCache
+        material.isDoubleSided = false
         plane.materials = [material]
         
         let node = SCNNode(geometry: plane)
         node.position = SCNVector3(0, 0.1, -0.8)
         
         sceneView.scene.rootNode.addChildNode(node)
-        self.planeNode = node // Guarda referência do nó
+        self.planeNode = node
     }
 
     
@@ -98,16 +107,23 @@ class ViewController: UIViewController, ARSCNViewDelegate {
          sceneView.addGestureRecognizer(pinchGesture)
      }
      
-     func addPanGesture() {
+    func addPanGesture() {
          let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
          sceneView.addGestureRecognizer(panGesture)
      }
+    
+    func addRotationGesture() {
+        let rotationGesture = UIRotationGestureRecognizer(target: self, action: #selector(handleRotation(_:)))
+        sceneView.addGestureRecognizer(rotationGesture)
+    }
      
      @objc func handlePinch(_ gesture: UIPinchGestureRecognizer) {
          guard let node = planeNode else { return }
          
-         let scale = Float(gesture.scale)
-         node.scale = SCNVector3(scale, scale, scale)
+         if gesture.state == .changed {
+             let scale = Float(gesture.scale)
+             node.scale = SCNVector3(scale, scale, scale)
+         }
          
          if gesture.state == .ended {
              gesture.scale = 1.0
@@ -126,4 +142,12 @@ class ViewController: UIViewController, ARSCNViewDelegate {
          
          gesture.setTranslation(.zero, in: sceneView)
      }
+    
+    @objc func handleRotation(_ gesture: UIRotationGestureRecognizer) {
+        guard let node = planeNode else { return }
+        
+        if gesture.state == .changed {
+            node.eulerAngles.z = Float(gesture.rotation)
+        }
+    }
 }

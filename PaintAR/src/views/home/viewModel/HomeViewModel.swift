@@ -127,7 +127,7 @@ class HomeViewModel: ObservableObject {
             let fetchedPaints = self.coreDataController.fetchAllPaints()
             let sortedPaints = fetchedPaints.sorted { $0.date ?? Date() > $1.date ?? Date() }
             
-            DispatchQueue.main.async {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 self.paints = sortedPaints
                 self.state = .loaded(sortedPaints)
             }
